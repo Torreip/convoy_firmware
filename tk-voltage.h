@@ -31,7 +31,7 @@
 #define get_temperature read_adc_8bit
 #endif
 
-inline void ADC_on_temperature() {
+void ADC_on_temperature() {
     // TODO: (?) enable ADC Noise Reduction Mode, Section 17.7 on page 128
     //       (apparently can only read while the CPU is in idle mode though)
     // select ADC4 by writing 0b00001111 to ADMUX
@@ -50,7 +50,7 @@ inline void ADC_on_temperature() {
 
 #ifdef VOLTAGE_MON
 #define NEED_ADC_8bit
-inline void ADC_on() {
+void ADC_on() {
     // disable digital input on ADC pin to reduce power consumption
     DIDR0 |= (1 << ADC_DIDR);
     // 1.1v reference, left-adjust, ADC1/PB2
@@ -61,7 +61,7 @@ inline void ADC_on() {
 
 #define get_voltage read_adc_8bit
 #else
-inline void ADC_off() {
+void ADC_off() {
     ADCSRA &= ~(1<<7); //ADC off
 }
 #endif
@@ -166,7 +166,7 @@ PROGMEM const uint8_t voltage_blinks[] = {
     ADC_44,(4<<5)+4,
     255,   (1<<5)+1,  // Ceiling, don't remove
 };
-inline uint8_t battcheck() {
+uint8_t battcheck() {
     // Return an composite int, number of "blinks", for approximate battery charge
     // Uses the table above for return values
     // Return value is 3 bits of whole volts and 5 bits of tenths-of-a-volt
@@ -179,7 +179,7 @@ inline uint8_t battcheck() {
     return pgm_read_byte(voltage_blinks + i + 1);
 }
 #else  // #ifdef BATTCHECK_VpT
-inline uint8_t battcheck() {
+uint8_t battcheck() {
     // Return an int, number of "blinks", for approximate battery charge
     // Uses the table above for return values
     uint8_t i, voltage;
