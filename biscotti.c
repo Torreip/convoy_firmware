@@ -63,6 +63,7 @@
 #define USE_DELAY_4MS
 #define USE_DELAY_S         // Also use _delay_s(), not just _delay_ms()
 
+#include "tk-attiny.h"
 #include "tk-delay.h"
 #include "tk-voltage.h"
 
@@ -74,23 +75,24 @@
  * global variables
  */
 
-// Config option variables
+/** Config option variables */
 //#define USE_FIRSTBOOT
 #ifdef USE_FIRSTBOOT
 #  define FIRSTBOOT 0b01010101
 uint8_t g_u8firstboot = FIRSTBOOT;  // detect initial boot or factory reset
 #endif
 uint8_t g_u8modegroup;     // which mode group (set above in #defines)
-#define enable_moon 0   // Should we add moon to the set of g_u8modes?
-#define reverse_modes 0 // flip the mode order?
+#define enable_moon   0u   // Should we add moon to the set of g_u8modes?
+#define reverse_modes 0u   // flip the mode order?
 uint8_t g_u8memory;        // mode g_u8memory, or not (set via soldered star)
 #ifdef OFFTIM3
 uint8_t g_u8offtim3;       // enable medium-press?
 #endif
 #ifdef TEMPERATURE_MON
-uint8_t g_u8maxtemp = 79;      // temperature step-down threshold
+uint8_t g_u8maxtemp = 79u; // temperature step-down threshold
 #endif
-// Other state variables
+
+/** Other state variables */
 uint8_t g_u8mode_override; // do we need to enter a special mode?
 uint8_t g_u8mode_idx;      // current or last-used mode number
 uint8_t g_u8eepos;
@@ -103,17 +105,17 @@ uint8_t g_u8long_press __attribute__ ((section (".noinit")));
 #ifdef OFFTIM3
 uint8_t g_u8mode_cnt;
 #endif
-// number of regular non-hidden g_u8modes in current mode group
+// number of regular non-hidden modes in current mode group
 uint8_t g_u8solid_modes;
-// number of hidden g_u8modes in the current mode group
-// (hardcoded because both groups have the same hidden g_u8modes)
+// number of hidden modes in the current mode group
+// (hardcoded because both groups have the same hidden modes)
 //uint8_t hidden_modes = NUM_HIDDEN;  // this is never used
 
 
 //PROGMEM const uint8_t hiddenmodes[] = { HIDDENMODES };
 // default values calculated by group_calc.py
 // Each group must be 8 values long, but can be cut short with a zero.
-#define NUM_MODEGROUPS 8  // don't count muggle mode
+#define NUM_MODEGROUPS (8u)
 PROGMEM const uint8_t modegroups[] = {
 //    1,  2,  3,  5,  7,  POLICE_STROBE, BIKING_STROBE, BATTCHECK,
     1,  2,  3,  5,  7,  0,  0,  0,
@@ -128,7 +130,7 @@ PROGMEM const uint8_t modegroups[] = {
 //    7,  4,  POLICE_STROBE,  0,  0,  0,  0,  0,
     7,  0,
 };
-uint8_t g_u8modes[8];  // make sure this is long enough...
+uint8_t g_u8modes[8u];  // make sure this is long enough...
 
 // Modes (gets set when the light starts up based on saved config values)
 //PROGMEM const uint8_t ramp_7135[] = { RAMP_7135 };

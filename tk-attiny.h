@@ -27,10 +27,10 @@
 
 /******************** hardware-specific values **************************/
 #if (ATTINY == 13)
-#define F_CPU 4800000UL
-#define EEPSIZE 64
-#define V_REF REFS0
-#define BOGOMIPS 950
+#define F_CPU   (4800000uL)
+#define EEPSIZE       (64u)
+#define V_REF       (REFS0)
+#define BOGOMIPS     (950u)
 #elif (ATTINY == 25)
 // TODO: Use 6.4 MHz instead of 8 MHz?
 #define F_CPU 8000000UL

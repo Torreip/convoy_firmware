@@ -377,7 +377,7 @@ void set_level(uint8_t level) {
 
 void set_mode(uint8_t mode) {
 #ifdef SOFT_START
-    static uint8_t actual_level = 0;
+    static uint8_t actual_level = 0u;
     uint8_t target_level = mode;
     int8_t shift_amount;
     int8_t diff;
