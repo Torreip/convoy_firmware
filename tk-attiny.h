@@ -43,7 +43,7 @@ Hey, you need to define ATTINY.
 
 
 /******************** I/O pin and register layout ************************/
-#ifdef FET_7135_LAYOUT
+#ifdef LAYOUT_FET_7135
 /*
  *           ----
  *   Reset -|1  8|- VCC
@@ -76,9 +76,9 @@ Hey, you need to define ATTINY.
 #define FAST 0xA3           // fast PWM both channels
 #define PHASE 0xA1          // phase-correct PWM both channels
 
-#endif  // FET_7135_LAYOUT
+#endif  // LAYOUT_FET_7135
 
-#ifdef TRIPLEDOWN_LAYOUT
+#ifdef LAYOUT_TRIPLEDOWN
 /*
  *             ----
  *     Reset -|1  8|- VCC
@@ -112,9 +112,9 @@ Hey, you need to define ATTINY.
 #define FAST 0xA3           // fast PWM both channels
 #define PHASE 0xA1          // phase-correct PWM both channels
 
-#endif  // TRIPLEDOWN_LAYOUT
+#endif  // LAYOUT_TRIPLEDOWN
 
-#ifdef FERRERO_ROCHER_LAYOUT
+#ifdef LAYOUT_FERRERO_ROCHER
 /*
  *            ----
  *    Reset -|1  8|- VCC
@@ -126,9 +126,9 @@ Hey, you need to define ATTINY.
 // TODO: fill in this section, update Ferrero_Rocher code to use it.
 #define FAST 0x23           // fast PWM channel 1 only
 #define PHASE 0x21          // phase-correct PWM channel 1 only
-#endif  // FERRERO_ROCHER_LAYOUT
+#endif  // LAYOUT_FERRERO_ROCHER
 
-#ifdef NANJG_LAYOUT
+#ifdef LAYOUT_NANJG
 #define STAR2_PIN   PB0
 #define STAR3_PIN   PB4
 #define STAR4_PIN   PB3
@@ -143,7 +143,35 @@ Hey, you need to define ATTINY.
 #define FAST 0x23           // fast PWM channel 1 only
 #define PHASE 0x21          // phase-correct PWM channel 1 only
 
-#endif  // NANJG_LAYOUT
+#endif  // LAYOUT_NANJG
+
+#ifdef LAYOUT_CONVS3
+/*
+ * ATTINY13 Diagram
+ *           ----
+ *         -|1  8|- VCC
+ *         -|2  7|- Voltage ADC
+ *         -|3  6|- PWM (Nx7135)
+ *     GND -|4  5|-
+ *           ----
+ */
+//#define STAR2_PIN   PB0
+//#define STAR3_PIN   PB4
+//#define STAR4_PIN   PB3
+#define PWM_PIN     PB1
+#define VOLTAGE_PIN PB2
+#define ADC_CHANNEL 0x01    // MUX 01 corresponds with PB2
+#define ADC_DIDR    ADC1D   // Digital input disable bit corresponding with PB2
+#define ADC_PRSCL   0x06    // clk/64
+
+#define PWM_LVL     OCR0B   // OCR0B is the output compare register for PB1
+
+#define FAST 0x23           // fast PWM channel 1 only
+#define PHASE 0x21          // phase-correct PWM channel 1 only
+
+#endif  // LAYOUT_CONVS3
+
+
 
 #ifndef PWM_LVL
 Hey, you need to define an I/O pin layout.

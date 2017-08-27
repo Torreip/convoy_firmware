@@ -23,8 +23,8 @@
  *           ----
  *         -|1  8|- VCC
  *         -|2  7|- Voltage ADC
- *         -|3  6|-
- *     GND -|4  5|- PWM (Nx7135)
+ *         -|3  6|- PWM (Nx7135)
+ *     GND -|4  5|- //PWM (Nx7135)
  *           ----
  *
  * FUSES
@@ -77,7 +77,7 @@
 // Config option variables
 //#define USE_FIRSTBOOT
 #ifdef USE_FIRSTBOOT
-#define FIRSTBOOT 0b01010101
+#  define FIRSTBOOT 0b01010101
 uint8_t firstboot = FIRSTBOOT;  // detect initial boot or factory reset
 #endif
 uint8_t modegroup;     // which mode group (set above in #defines)
@@ -90,7 +90,6 @@ uint8_t offtim3;       // enable medium-press?
 #ifdef TEMPERATURE_MON
 uint8_t maxtemp = 79;      // temperature step-down threshold
 #endif
-#define muggle_mode 0   // simple mode designed for muggles
 // Other state variables
 uint8_t mode_override; // do we need to enter a special mode?
 uint8_t mode_idx;      // current or last-used mode number
@@ -114,19 +113,19 @@ uint8_t solid_modes;
 //PROGMEM const uint8_t hiddenmodes[] = { HIDDENMODES };
 // default values calculated by group_calc.py
 // Each group must be 8 values long, but can be cut short with a zero.
-#define NUM_MODEGROUPS 12  // don't count muggle mode
+#define NUM_MODEGROUPS 8  // don't count muggle mode
 PROGMEM const uint8_t modegroups[] = {
-    1,  2,  3,  5,  7,  POLICE_STROBE, BIKING_STROBE, BATTCHECK,
+//    1,  2,  3,  5,  7,  POLICE_STROBE, BIKING_STROBE, BATTCHECK,
     1,  2,  3,  5,  7,  0,  0,  0,
     7,  5,  3,  2,  1,  0,  0,  0,
-    2,  4,  7,  POLICE_STROBE, BIKING_STROBE, BATTCHECK, SOS,  0,
+//    2,  4,  7,  POLICE_STROBE, BIKING_STROBE, BATTCHECK, SOS,  0,
     2,  4,  7,  0,  0,  0,  0,  0,
     7,  4,  2,  0,  0,  0,  0,  0,
-    1,  2,  3,  6,  POLICE_STROBE, BIKING_STROBE, BATTCHECK, SOS,
+//    1,  2,  3,  6,  POLICE_STROBE, BIKING_STROBE, BATTCHECK, SOS,
     1,  2,  3,  6,  0,  0,  0,  0,
     6,  3,  2,  1,  0,  0,  0,  0,
     2,  3,  5,  7,  0,  0,  0,  0,
-    7,  4,  POLICE_STROBE,  0,  0,  0,  0,  0,
+//    7,  4,  POLICE_STROBE,  0,  0,  0,  0,  0,
     7,  0,
 };
 uint8_t modes[8];  // make sure this is long enough...
@@ -159,7 +158,6 @@ void save_mode() {  // save the current mode index (with wear leveling)
 #define OPT_mode_override (EEPSIZE-3)
 //#define OPT_moon (EEPSIZE-7)
 //#define OPT_revmodes (EEPSIZE-8)
-//#define OPT_muggle (EEPSIZE-9)
 void save_state() {  // central method for writing complete state
     save_mode();
 #ifdef USE_FIRSTBOOT
@@ -176,7 +174,6 @@ void save_state() {  // central method for writing complete state
     eeprom_write_byte((uint8_t *)OPT_mode_override, mode_override);
     //eeprom_write_byte((uint8_t *)OPT_moon, enable_moon);
     //eeprom_write_byte((uint8_t *)OPT_revmodes, reverse_modes);
-    //eeprom_write_byte((uint8_t *)OPT_muggle, muggle_mode);
 }
 
 #ifndef USE_FIRSTBOOT
@@ -200,9 +197,9 @@ void restore_state() {
         save_state();
         return;
     }
-#else
+#else // USE_FIRSTBOOT
     uint8_t first = 1;
-#endif
+#endif // USE_FIRSTBOOT
 
     // find the mode index data
     for(eepos=0; eepos<WEAR_LVL_LEN; eepos++) {
@@ -221,21 +218,20 @@ void restore_state() {
         reset_state();
         return;
     }
-#endif
+#endif // USE_FIRSTBOOT
 
     // load other config values
     modegroup = eeprom_read_byte((uint8_t *)OPT_modegroup);
     memory    = eeprom_read_byte((uint8_t *)OPT_memory);
 #ifdef OFFTIM3
     offtim3   = eeprom_read_byte((uint8_t *)OPT_offtim3);
-#endif
+#endif // OFFTIM3
 #ifdef TEMPERATURE_MON
     maxtemp   = eeprom_read_byte((uint8_t *)OPT_maxtemp);
-#endif
+#endif // TEMPERATURE_MON
     mode_override = eeprom_read_byte((uint8_t *)OPT_mode_override);
     //enable_moon   = eeprom_read_byte((uint8_t *)OPT_moon);
     //reverse_modes = eeprom_read_byte((uint8_t *)OPT_revmodes);
-    //muggle_mode   = eeprom_read_byte((uint8_t *)OPT_muggle);
 
     // unnecessary, save_state handles wrap-around
     // (and we don't really care about it skipping cell 0 once in a while)
@@ -258,9 +254,6 @@ void next_mode() {
 
 #ifdef OFFTIM3
 void prev_mode() {
-    // simple mode has no reverse
-    //if (muggle_mode) { return next_mode(); }
-
     if (mode_idx == solid_modes) {
         // If we hit the end of the hidden modes, go back to moon
         mode_idx = 0;
@@ -272,7 +265,7 @@ void prev_mode() {
         mode_idx = mode_cnt - 1;
     }
 }
-#endif
+#endif // OFFTIM3
 
 void count_modes() {
     /*
@@ -287,15 +280,6 @@ void count_modes() {
     //uint8_t my_enable_moon = enable_moon;
     //uint8_t my_reverse_modes = reverse_modes;
 
-    // override config if we're in simple mode
-#if 0
-    if (muggle_mode) {
-        my_modegroup = NUM_MODEGROUPS;
-        my_enable_moon = 0;
-        my_reverse_modes = 0;
-    }
-#endif
-
     uint8_t *dest;
     //const uint8_t *src = modegroups + (my_modegroup<<3);
     const uint8_t *src = modegroups + (modegroup<<3);
@@ -306,9 +290,7 @@ void count_modes() {
     // No, how about actually counting the modes instead?
     // (in case anyone changes the mode groups above so they don't form a triangle)
     uint8_t count;
-    for(count=0;
-            (count<8) && pgm_read_byte(src);
-            count++, src++ )
+    for (count=0; (count<8) && pgm_read_byte(src); count++, src++ )
     {
         *dest++ = pgm_read_byte(src);
     }
@@ -330,7 +312,7 @@ void count_modes() {
 #ifdef OFFTIM3
     //mode_cnt = solid_modes + sizeof(hiddenmodes);
     mode_cnt = solid_modes;
-#endif
+#endif // OFFTIM3
 #if 0
     if (my_reverse_modes) {
         // TODO: yuck, isn't there a better way to do this?
@@ -358,9 +340,9 @@ void count_modes() {
 
 #ifdef ALT_PWM_LVL
 void set_output(uint8_t pwm1, uint8_t pwm2) {
-#else
+#else // ALT_PWM_LVL
 void set_output(uint8_t pwm1) {
-#endif
+#endif // ALT_PWM_LVL
     /* This is no longer needed since we always use PHASE mode.
     // Need PHASE to properly turn off the light
     if ((pwm1==0) && (pwm2==0)) {
@@ -412,8 +394,8 @@ void set_mode(uint8_t mode) {
         _delay_ms(RAMP_SIZE/4);  // fast ramp
     } while (target_level != actual_level);
 }
-#else
-#define set_mode set_level
+#else // SOFT_START
+#  define set_mode set_level
 //set_level(mode);
 #endif  // SOFT_START
 
@@ -439,7 +421,7 @@ void strobe(uint8_t ontime, uint8_t offtime) {
         _delay_4ms(offtime);
     }
 }
-#endif
+#endif // ANY_STROBE
 
 #ifdef SOS
 void SOS_mode() {
@@ -452,7 +434,7 @@ void SOS_mode() {
     _delay_s();
     _delay_s();
 }
-#endif
+#endif // SOS
 
 void toggle(uint8_t *var, uint8_t num) {
     // Used for config mode
@@ -516,7 +498,7 @@ uint8_t read_otc() {
     // ADCH should have the value we wanted
     return ADCH;
 }
-#endif
+#endif // OFFTIM3
 
 int main(void)
 {
@@ -578,7 +560,6 @@ int main(void)
             // Long press, keep the same mode
             // ... or reset to the first mode
             fast_presses = 0;
-            //if (muggle_mode  || (! memory)) {
             if (! memory) {
                 // Reset to the first mode
                 mode_idx = 0;
@@ -623,15 +604,11 @@ int main(void)
         fast_presses = 0;
         output = mode_idx;
     }
-    while(1) {
+    while (1) {
         if (fast_presses > 9) {  // Config mode
             _delay_s();       // wait for user to stop fast-pressing button
             fast_presses = 0; // exit this mode after one use
             mode_idx = 0;
-
-            // Enter or leave "muggle mode"?
-            //toggle(&muggle_mode, 1);
-            //if (muggle_mode) { continue; };  // don't offer other options in muggle mode
 
             //toggle(&memory, 2);
 

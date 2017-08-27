@@ -5,8 +5,8 @@
 #define ATTINY 13
 //#define ATTINY 25
 // FIXME: make 1-channel vs 2-channel power a single #define option
-#define FET_7135_LAYOUT  // specify an I/O pin layout
-//#define NANJG_LAYOUT  // specify an I/O pin layout
+#define LAYOUT_FET_7135  // specify an I/O pin layout
+//#define LAYOUT_NANJG  // specify an I/O pin layout
 // Also, assign I/O pins in this file:
 #include "tk-attiny.h"
 

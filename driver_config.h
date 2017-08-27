@@ -5,8 +5,9 @@
 #define ATTINY 13
 //#define ATTINY 25
 // FIXME: make 1-channel vs 2-channel power a single #define option
-//#define FET_7135_LAYOUT  // specify an I/O pin layout
-#define NANJG_LAYOUT  // specify an I/O pin layout
+//#define LAYOUT_FET_7135  // specify an I/O pin layout
+//#define LAYOUT_NANJG     // specify an I/O pin layout
+#define LAYOUT_CONVS3      // specify an I/O pin layout
 // Also, assign I/O pins in this file:
 #include "tk-attiny.h"
 
@@ -64,16 +65,16 @@
 #define GROUP_SELECT_MODE 253
 //#define TEMP_CAL_MODE 252
 // Uncomment to enable tactical strobe mode
-#define ANY_STROBE  // required for strobe or police_strobe
+//#define ANY_STROBE  // required for strobe or police_strobe
 //#define STROBE    251       // Convenience code for strobe mode
 // Uncomment to unable a 2-level stutter beacon instead of a tactical strobe
-#define BIKING_STROBE 250   // Convenience code for biking strobe mode
+//#define BIKING_STROBE 250   // Convenience code for biking strobe mode
 // comment out to use minimal version instead (smaller)
-#define FULL_BIKING_STROBE
+//#define FULL_BIKING_STROBE
 //#define RAMP 249       // ramp test mode for tweaking ramp shape
-#define POLICE_STROBE 248
+//#define POLICE_STROBE 248
 //#define RANDOM_STROBE 247
-#define SOS 246
+//#define SOS 246
 
 // thermal step-down
 //#define TEMPERATURE_MON
