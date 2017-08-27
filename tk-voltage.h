@@ -1,5 +1,5 @@
 #ifndef TK_VOLTAGE_H
-#define TK_VOLTAGE_H
+#  define TK_VOLTAGE_H
 /*
  * Voltage / battcheck functions.
  *
@@ -23,13 +23,43 @@
 #include "tk-attiny.h"
 #include "tk-calibration.h"
 
+/*
+ * Prototypes
+ */
+
 #if defined(TEMPERATURE_MON) || defined(THERMAL_REGULATION)
-#ifdef TEMP_10bit
-#define NEED_ADC_10bit
-#define get_temperature read_adc_10bit
+void ADC_on_temperature();
+#endif // TEMPERATURE_MON || THERMAL_REGULATION
+
+#ifdef VOLTAGE_MON
+#  define NEED_ADC_8bit
+static inline void ADC_on();
 #else
-#define get_temperature read_adc_8bit
+static inline void ADC_off();
 #endif
+#ifdef NEED_ADC_8bit
+static inline uint8_t read_adc_8bit();
+#endif // NEED_ADC_8bit
+
+#ifdef NEED_ADC_10bit
+static inline uint16_t read_adc_10bit();
+#endif // NEED_ADC_10bit
+#ifdef USE_BATTCHECK
+static inline uint8_t battcheck();
+#endif // USE_BATTCHECK
+
+/*
+ * Code - functions should be put in a C file
+ */
+
+
+#if defined(TEMPERATURE_MON) || defined(THERMAL_REGULATION)
+#  ifdef TEMP_10bit
+#    define NEED_ADC_10bit
+#    define get_temperature read_adc_10bit
+#  else
+#    define get_temperature read_adc_8bit
+#  endif
 
 void ADC_on_temperature() {
     // TODO: (?) enable ADC Noise Reduction Mode, Section 17.7 on page 128
@@ -49,7 +79,6 @@ void ADC_on_temperature() {
 #endif  // TEMPERATURE_MON
 
 #ifdef VOLTAGE_MON
-#define NEED_ADC_8bit
 void ADC_on() {
     // disable digital input on ADC pin to reduce power consumption
     DIDR0 |= (1 << ADC_DIDR);
@@ -59,12 +88,12 @@ void ADC_on() {
     ADCSRA = (1 << ADEN ) | (1 << ADSC ) | ADC_PRSCL;
 }
 
-#define get_voltage read_adc_8bit
-#else
+#  define get_voltage read_adc_8bit
+#else // VOLTAGE_MON
 void ADC_off() {
     ADCSRA &= ~(1<<7); //ADC off
 }
-#endif
+#endif // VOLTAGE_MON
 
 #ifdef NEED_ADC_8bit
 uint8_t read_adc_8bit() {
@@ -75,10 +104,10 @@ uint8_t read_adc_8bit() {
     // Send back the result
     return ADCH;
 }
-#endif
+#endif // NEED_ADC_8bit
 
 #ifdef NEED_ADC_10bit
-uint16_t read_adc_10bit() {
+static inline uint16_t read_adc_10bit() {
     // Start conversion
     ADCSRA |= (1 << ADSC);
     // Wait for completion
@@ -89,10 +118,10 @@ uint16_t read_adc_10bit() {
     ADCSRA |= 0x10;  // clear ADIF flag, else only first reading works
     return ADC;  // ADLAR=0
 }
-#endif
+#endif // NEED_ADC_10bit
 
 #ifdef USE_BATTCHECK
-#ifdef BATTCHECK_4bars
+#  ifdef BATTCHECK_4bars
 PROGMEM const uint8_t voltage_blinks[] = {
                // 0 blinks for less than 1%
     ADC_0p,    // 1 blink  for 1%-25%
@@ -102,8 +131,8 @@ PROGMEM const uint8_t voltage_blinks[] = {
     ADC_100p,  // 5 blinks for >100%
     255,       // Ceiling, don't remove  (6 blinks means "error")
 };
-#endif  // BATTCHECK_4bars
-#ifdef BATTCHECK_8bars
+#  endif  // BATTCHECK_4bars
+#  ifdef BATTCHECK_8bars
 PROGMEM const uint8_t voltage_blinks[] = {
                // 0 blinks for less than 1%
     ADC_30,    // 1 blink  for 1%-12.5%
@@ -117,8 +146,8 @@ PROGMEM const uint8_t voltage_blinks[] = {
     ADC_42,    // 9 blinks for >100%
     255,       // Ceiling, don't remove  (10 blinks means "error")
 };
-#endif  // BATTCHECK_8bars
-#ifdef BATTCHECK_VpT
+#  endif  // BATTCHECK_8bars
+#  ifdef BATTCHECK_VpT
 /*
 PROGMEM const uint8_t v_whole_blinks[] = {
                // 0 blinks for (shouldn't happen)
@@ -178,7 +207,7 @@ uint8_t battcheck() {
          i += 2) {}
     return pgm_read_byte(voltage_blinks + i + 1);
 }
-#else  // #ifdef BATTCHECK_VpT
+  #else  // #ifdef BATTCHECK_VpT
 uint8_t battcheck() {
     // Return an int, number of "blinks", for approximate battery charge
     // Uses the table above for return values
@@ -190,7 +219,7 @@ uint8_t battcheck() {
          i ++) {}
     return i;
 }
-#endif  // BATTCHECK_VpT
+  #endif  // BATTCHECK_VpT
 #endif
 
 

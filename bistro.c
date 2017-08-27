@@ -255,7 +255,7 @@ void save_state() {  // central method for writing complete state
 }
 
 #ifndef USE_FIRSTBOOT
-inline void reset_state() {
+static inline void reset_state() {
     mode_idx = 0;
     modegroup = 5;
     save_state();
@@ -320,7 +320,7 @@ void restore_state() {
 #endif
 }
 
-inline void next_mode() {
+static inline void next_mode() {
     mode_idx += 1;
     if (mode_idx >= solid_modes) {
         // Wrap around, skipping the hidden modes
@@ -331,7 +331,7 @@ inline void next_mode() {
 }
 
 #ifdef OFFTIM3
-inline void prev_mode() {
+static inline void prev_mode() {
     // simple mode has no reverse
     if (muggle_mode) { return next_mode(); }
 
@@ -424,9 +424,9 @@ void count_modes() {
 }
 
 #ifdef ALT_PWM_LVL
-inline void set_output(uint8_t pwm1, uint8_t pwm2) {
+static inline void set_output(uint8_t pwm1, uint8_t pwm2) {
 #else
-inline void set_output(uint8_t pwm1) {
+static inline void set_output(uint8_t pwm1) {
 #endif
     /* This is no longer needed since we always use PHASE mode.
     // Need PHASE to properly turn off the light
@@ -482,7 +482,7 @@ void blink(uint8_t val, uint16_t speed)
     }
 }
 
-inline void strobe(uint8_t ontime, uint8_t offtime) {
+static inline void strobe(uint8_t ontime, uint8_t offtime) {
     uint8_t i;
     for(i=0;i<8;i++) {
         set_level(RAMP_SIZE);
@@ -493,7 +493,7 @@ inline void strobe(uint8_t ontime, uint8_t offtime) {
 }
 
 #ifdef SOS
-inline void SOS_mode() {
+static inline void SOS_mode() {
 #define SOS_SPEED 200
     blink(3, SOS_SPEED);
     _delay_ms(SOS_SPEED*5);
@@ -546,7 +546,7 @@ uint8_t get_temp() {
 #endif  // TEMPERATURE_MON
 
 #ifdef OFFTIM3
-inline uint8_t read_otc() {
+static inline uint8_t read_otc() {
     // Read and return the off-time cap value
     // Start up ADC for capacitor pin
     // disable digital input on ADC pin to reduce power consumption

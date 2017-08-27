@@ -376,7 +376,7 @@ void restore_state() {
 }
 #endif  // ifdef CONFIG_MODE
 
-inline void next_mode() {
+static inline void next_mode() {
     // allow an override, if it exists
     //if (next_mode_num < sizeof(modes)) {
     if (next_mode_num < 255) {
@@ -394,12 +394,12 @@ inline void next_mode() {
 }
 
 #ifdef RAMP_CH3
-inline void set_output(uint8_t pwm1, uint8_t pwm2, uint8_t pwm3) {
+static inline void set_output(uint8_t pwm1, uint8_t pwm2, uint8_t pwm3) {
 #else
 #ifdef RAMP_CH2
-inline void set_output(uint8_t pwm1, uint8_t pwm2) {
+static inline void set_output(uint8_t pwm1, uint8_t pwm2) {
 #else
-inline void set_output(uint8_t pwm1) {
+static inline void set_output(uint8_t pwm1) {
 #endif
 #endif
     PWM_LVL = pwm1;
@@ -465,7 +465,7 @@ void blink(uint8_t val, uint8_t speed)
 #ifdef POLICE_STROBE
 void strobe(uint8_t ontime, uint8_t offtime) {
 #else
-inline void strobe(uint8_t ontime, uint8_t offtime) {
+static inline void strobe(uint8_t ontime, uint8_t offtime) {
 #endif
     uint8_t i;
     for(i=0;i<8;i++) {
@@ -478,7 +478,7 @@ inline void strobe(uint8_t ontime, uint8_t offtime) {
 #endif
 
 #ifdef PARTY_STROBES
-inline void party_strobe(uint8_t ontime, uint8_t offtime) {
+static inline void party_strobe(uint8_t ontime, uint8_t offtime) {
     set_level(RAMP_SIZE);
     if (ontime) {
         _delay_ms(ontime);
@@ -498,7 +498,7 @@ void party_strobe_loop(uint8_t ontime, uint8_t offtime) {
 #endif
 
 #ifdef SOS
-inline void SOS_mode() {
+static inline void SOS_mode() {
 #define SOS_SPEED (200/4)
     blink(3, SOS_SPEED);
     _delay_4ms(SOS_SPEED*5);
@@ -510,7 +510,7 @@ inline void SOS_mode() {
 #endif
 
 #ifdef BIKING_MODE
-inline void biking_mode(uint8_t lo, uint8_t hi) {
+static inline void biking_mode(uint8_t lo, uint8_t hi) {
     #ifdef FULL_BIKING_MODE
     // normal version
     uint8_t i;
@@ -559,7 +559,7 @@ int16_t current_temperature() {
 #ifdef GOODNIGHT
 void poweroff() {
 #else
-inline void poweroff() {
+static inline void poweroff() {
 #endif
     // Turn off main LED
     set_level(0);
