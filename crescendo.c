@@ -122,7 +122,7 @@
 #define BATTCHECK_8bars  // up to 8 blinks
 //#define BATTCHECK_VpT  // Volts + tenths
 
-// output to use for blinks on battery check (and other modes)
+// output to use for blinks on battery check (and other g_u8modes)
 #define BLINK_BRIGHTNESS    RAMP_SIZE/4
 // ms per normal-speed blink
 #define BLINK_SPEED         (500/4)
@@ -135,7 +135,7 @@
 // 255 is the default eeprom state, don't use
 // (actually, no longer applies...  using a different algorithm now)
 // (previously tried to store mode type plus ramp level in a single byte
-//  for mode memory purposes, but it was a bad idea)
+//  for mode g_u8memory purposes, but it was a bad idea)
 #define DONOTUSE  255
 // Modes start at 255 and count down
 #define TURBO     254
@@ -146,7 +146,7 @@
 #endif
 #define MEMORY    250
 #ifdef MEMORY
-#define MEMTOGGLE // runtime config for memory (requires MEMORY)
+#define MEMTOGGLE // runtime config for g_u8memory (requires MEMORY)
 #endif
 #ifdef THERMAL_REGULATION
 #define THERM_CALIBRATION_MODE 248  // let user configure temperature limit
@@ -216,28 +216,28 @@
 
 // Config option variables
 #ifdef MEMTOGGLE
-uint8_t memory;
+uint8_t g_u8memory;
 #endif
 #ifdef THERMAL_REGULATION
 uint8_t therm_ceil = DEFAULT_THERM_CEIL;
 #endif
 // Other state variables
-uint8_t eepos;
+uint8_t g_u8eepos;
 uint8_t saved_mode_idx = 0;
 uint8_t saved_ramp_level = 1;
 // counter for entering config mode
 // (needs to be remembered while off, but only for up to half a second)
-uint8_t fast_presses __attribute__ ((section (".noinit")));
-uint8_t long_press __attribute__ ((section (".noinit")));
+uint8_t g_u8fast_presses __attribute__ ((section (".noinit")));
+uint8_t g_u8long_press __attribute__ ((section (".noinit")));
 // current or last-used mode number
-uint8_t mode_idx __attribute__ ((section (".noinit")));
+uint8_t g_u8mode_idx __attribute__ ((section (".noinit")));
 uint8_t ramp_level __attribute__ ((section (".noinit")));
 int8_t ramp_dir __attribute__ ((section (".noinit")));
 uint8_t next_mode_num __attribute__ ((section (".noinit")));
 uint8_t target_level;  // ramp level before thermal stepdown
 uint8_t actual_level;  // last ramp level activated
 
-uint8_t modes[] = {
+uint8_t g_u8modes[] = {
     RAMP, STEADY, TURBO,
 #ifdef USE_BATTCHECK
     BATTCHECK,
@@ -308,16 +308,16 @@ void _delay_500ms() {
 #endif
 #ifdef MEMORY
 void save_mode() {  // save the current mode index (with wear leveling)
-    // only save when memory is enabled
-    if (memory) {
-        eeprom_write_byte((uint8_t *)(eepos), 0xff);     // erase old state
-        eeprom_write_byte((uint8_t *)(++eepos), 0xff);     // erase old state
+    // only save when g_u8memory is enabled
+    if (g_u8memory) {
+        eeprom_write_byte((uint8_t *)(g_u8eepos), 0xff);     // erase old state
+        eeprom_write_byte((uint8_t *)(++g_u8eepos), 0xff);     // erase old state
 
-        eepos = (eepos+1) & (EEP_WEAR_LVL_LEN-1);  // wear leveling, use next cell
+        g_u8eepos = (g_u8eepos+1) & (EEP_WEAR_LVL_LEN-1);  // wear leveling, use next cell
         // save current mode
-        eeprom_write_byte((uint8_t *)(eepos), mode_idx);
+        eeprom_write_byte((uint8_t *)(g_u8eepos), g_u8mode_idx);
         // save current brightness
-        eeprom_write_byte((uint8_t *)(eepos+1), ramp_level);
+        eeprom_write_byte((uint8_t *)(g_u8eepos+1), ramp_level);
     }
 }
 #endif
@@ -330,7 +330,7 @@ void save_state() {
     save_mode();
 #endif
 #ifdef MEMTOGGLE
-    eeprom_write_byte((uint8_t *)OPT_memory, memory);
+    eeprom_write_byte((uint8_t *)OPT_memory, g_u8memory);
 #endif
 #ifdef THERM_CALIBRATION_MODE
     eeprom_write_byte((uint8_t *)OPT_therm_ceil, therm_ceil);
@@ -344,14 +344,14 @@ void save_state() {
 void restore_state() {
     uint8_t eep;
 #ifdef MEMTOGGLE
-    // memory is either 1 or 0
+    // g_u8memory is either 1 or 0
     // (if it's unconfigured, 0xFF, assume it's off)
     eep = eeprom_read_byte((uint8_t *)OPT_memory);
     if (eep < 2) {
-        memory = eep;
+        g_u8memory = eep;
     }
     else {
-        memory = 0;
+        g_u8memory = 0;
     }
 #endif
 
@@ -365,11 +365,11 @@ void restore_state() {
 
 #ifdef MEMORY
     // find the mode index and last brightness level
-    for(eepos=0; eepos<EEP_WEAR_LVL_LEN; eepos+=2) {
-        eep = eeprom_read_byte((const uint8_t *)eepos);
+    for(g_u8eepos=0; g_u8eepos<EEP_WEAR_LVL_LEN; g_u8eepos+=2) {
+        eep = eeprom_read_byte((const uint8_t *)g_u8eepos);
         if (eep != 0xff) {
             saved_mode_idx = eep;
-            eep = eeprom_read_byte((const uint8_t *)(eepos+1));
+            eep = eeprom_read_byte((const uint8_t *)(g_u8eepos+1));
             if (eep != 0xff) {
                 saved_ramp_level = eep;
             }
@@ -382,18 +382,18 @@ void restore_state() {
 
 static inline void next_mode() {
     // allow an override, if it exists
-    //if (next_mode_num < sizeof(modes)) {
+    //if (next_mode_num < sizeof(g_u8modes)) {
     if (next_mode_num < 255) {
-        mode_idx = next_mode_num;
+        g_u8mode_idx = next_mode_num;
         next_mode_num = 255;
         return;
     }
 
-    mode_idx += 1;
-    if (mode_idx >= sizeof(modes)) {
+    g_u8mode_idx += 1;
+    if (g_u8mode_idx >= sizeof(g_u8modes)) {
         // Wrap around
         // (wrap to steady mode (1), not ramp (0))
-        mode_idx = 1;
+        g_u8mode_idx = 1;
     }
 }
 
@@ -431,7 +431,7 @@ void set_level(uint8_t level) {
     } else {
         /*
         if (level > 2) {
-            // divide PWM speed by 2 for lowest modes,
+            // divide PWM speed by 2 for lowest g_u8modes,
             // to make them more stable
             TCCR0A = FAST;
         }
@@ -628,22 +628,22 @@ int main(void)
 #endif
 
     // check button press time, unless the mode is overridden
-    if (! long_press) {
+    if (! g_u8long_press) {
         // Indicates they did a short press, go to the next mode
-        // We don't care what the fast_presses value is as long as it's over 15
-        fast_presses = (fast_presses+1) & 0x1f;
+        // We don't care what the g_u8fast_presses value is as long as it's over 15
+        g_u8fast_presses = (g_u8fast_presses+1) & 0x1f;
         next_mode(); // Will handle wrap arounds
     } else {
         // Long press, use memorized level
         // ... or reset to the first mode
-        fast_presses = 0;
+        g_u8fast_presses = 0;
         ramp_level = 1;
         ramp_dir = 1;
         next_mode_num = 255;
-        mode_idx = 0;
+        g_u8mode_idx = 0;
 #ifdef MEMORY
 #ifdef MEMTOGGLE
-        if (memory) {
+        if (g_u8memory) {
             mode_override = MEMORY;
         }
 #else
@@ -651,7 +651,7 @@ int main(void)
 #endif  // ifdef MEMTOGGLE
 #endif  // ifdef MEMORY
     }
-    long_press = 0;
+    g_u8long_press = 0;
 #ifdef MEMORY
     save_mode();
 #endif
@@ -680,8 +680,8 @@ int main(void)
     uint8_t first_loop = 1;
     uint8_t loop_count = 0;
     while(1) {
-        if (mode_idx < sizeof(modes)) mode = modes[mode_idx];
-        else mode = mode_idx;
+        if (g_u8mode_idx < sizeof(g_u8modes)) mode = g_u8modes[g_u8mode_idx];
+        else mode = g_u8mode_idx;
 
 #if defined(VOLTAGE_MON) && defined(THERMAL_REGULATION)
         // make sure a voltage reading has started, for LVP purposes
@@ -693,18 +693,18 @@ int main(void)
         }
 
 #ifdef CONFIG_MODE
-        else if (fast_presses > 15) {
+        else if (g_u8fast_presses > 15) {
             _delay_s();       // wait for user to stop fast-pressing button
-            fast_presses = 0; // exit this mode after one use
+            g_u8fast_presses = 0; // exit this mode after one use
             //mode = STEADY;
-            mode_idx = 1;
+            g_u8mode_idx = 1;
             next_mode_num = 255;
 
             uint8_t t = 0;
 #ifdef MEMTOGGLE
-            // turn memory on/off
+            // turn g_u8memory on/off
             // (click during the "buzz" to change the setting)
-            toggle(&memory, ++t);
+            toggle(&g_u8memory, ++t);
 #endif  // ifdef MEMTOGGLE
 
 #ifdef THERM_CALIBRATION_MODE
@@ -712,7 +712,7 @@ int main(void)
             next_mode_num = THERM_CALIBRATION_MODE;
             // mode_override does nothing here; just a dummy value
             toggle(&mode_override, ++t);
-            mode_idx = 1;
+            g_u8mode_idx = 1;
             next_mode_num = 255;
 #endif
 
@@ -736,7 +736,7 @@ int main(void)
             _delay_500ms();
 
             // if they didn't tap quickly, go to the memorized mode/level
-            mode_idx = saved_mode_idx;
+            g_u8mode_idx = saved_mode_idx;
             ramp_level = saved_ramp_level;
             // remember for next time
             save_mode();
@@ -750,18 +750,18 @@ int main(void)
             set_mode(ramp_level);  // turn light on
 
             // ramp up by default
-            //if (fast_presses == 0) {
+            //if (g_u8fast_presses == 0) {
             //    ramp_dir = 1;
             //}
             // double-tap to ramp down
-            //else if (fast_presses == 1) {
-            if (fast_presses == 1) {
-                next_mode_num = mode_idx;  // stay in ramping mode
+            //else if (g_u8fast_presses == 1) {
+            if (g_u8fast_presses == 1) {
+                next_mode_num = g_u8mode_idx;  // stay in ramping mode
                 ramp_dir = -1;             // ... but go down
             }
             // triple-tap to enter turbo
-            else if (fast_presses == 2) {
-                next_mode_num = mode_idx + 2;  // bypass "steady" mode
+            else if (g_u8fast_presses == 2) {
+                next_mode_num = g_u8mode_idx + 2;  // bypass "steady" mode
             }
 
             // wait a bit before actually ramping
@@ -774,11 +774,11 @@ int main(void)
             next_mode_num = 255;
             // ramp up on single tap
             // (cancel earlier reversal)
-            if (fast_presses == 1) {
+            if (g_u8fast_presses == 1) {
                 ramp_dir = 1;
             }
             // don't want this confusing us any more
-            fast_presses = 0;
+            g_u8fast_presses = 0;
 
             // Just in case (SRAM could have partially decayed)
             //ramp_dir = (ramp_dir == 1) ? 1 : -1;
@@ -796,7 +796,7 @@ int main(void)
             if (ramp_dir == 1) {
 #ifdef STOP_AT_TOP
                 // go to steady mode
-                mode_idx += 1;
+                g_u8mode_idx += 1;
 #endif
 #ifdef BLINK_AT_TOP
                 // blink at the top
@@ -1010,7 +1010,7 @@ int main(void)
 
         else {  // shouldn't happen  (compiler omits this entire clause)
         }
-        fast_presses = 0;
+        g_u8fast_presses = 0;
 
 
 #ifdef VOLTAGE_MON
@@ -1030,8 +1030,8 @@ int main(void)
                 //set_level(0);  _delay_ms(100);
 
                 if (mode != STEADY) {
-                    // step "down" from special modes to medium-low
-                    mode_idx = 1;
+                    // step "down" from special g_u8modes to medium-low
+                    g_u8mode_idx = 1;
                     //mode = STEADY;
                     ramp_level = RAMP_SIZE/4;
                 }

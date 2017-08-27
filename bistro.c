@@ -85,35 +85,35 @@
 #define USE_FIRSTBOOT
 #ifdef USE_FIRSTBOOT
 #define FIRSTBOOT 0b01010101
-uint8_t firstboot = FIRSTBOOT;  // detect initial boot or factory reset
+uint8_t g_u8firstboot = FIRSTBOOT;  // detect initial boot or factory reset
 #endif
-uint8_t modegroup = 5;     // which mode group (set above in #defines)
-uint8_t enable_moon = 1;   // Should we add moon to the set of modes?
+uint8_t g_u8modegroup = 5;     // which mode group (set above in #defines)
+uint8_t enable_moon = 1;   // Should we add moon to the set of g_u8modes?
 uint8_t reverse_modes = 0; // flip the mode order?
-uint8_t memory = 0;        // mode memory, or not (set via soldered star)
+uint8_t g_u8memory = 0;        // mode g_u8memory, or not (set via soldered star)
 #ifdef OFFTIM3
-uint8_t offtim3 = 1;       // enable medium-press?
+uint8_t g_u8offtim3 = 1;       // enable medium-press?
 #endif
 #ifdef TEMPERATURE_MON
-uint8_t maxtemp = 79;      // temperature step-down threshold
+uint8_t g_u8maxtemp = 79;      // temperature step-down threshold
 #endif
 uint8_t muggle_mode = 0;   // simple mode designed for muggles
 // Other state variables
-uint8_t mode_override = 0; // do we need to enter a special mode?
-uint8_t mode_idx = 0;      // current or last-used mode number
-uint8_t eepos = 0;
+uint8_t g_u8mode_override = 0; // do we need to enter a special mode?
+uint8_t g_u8mode_idx = 0;      // current or last-used mode number
+uint8_t g_u8eepos = 0;
 // counter for entering config mode
 // (needs to be remembered while off, but only for up to half a second)
-uint8_t fast_presses __attribute__ ((section (".noinit")));
+uint8_t g_u8fast_presses __attribute__ ((section (".noinit")));
 
 // total length of current mode group's array
 #ifdef OFFTIM3
-uint8_t mode_cnt;
+uint8_t g_u8mode_cnt;
 #endif
-// number of regular non-hidden modes in current mode group
-uint8_t solid_modes;
-// number of hidden modes in the current mode group
-// (hardcoded because both groups have the same hidden modes)
+// number of regular non-hidden g_u8modes in current mode group
+uint8_t g_u8solid_modes;
+// number of hidden g_u8modes in the current mode group
+// (hardcoded because both groups have the same hidden g_u8modes)
 //uint8_t hidden_modes = NUM_HIDDEN;  // this is never used
 
 
@@ -133,19 +133,19 @@ PROGMEM const uint8_t modegroups[] = {
     9, 18, 29, 46, 64,  0,  0,  0,  // 9: special group C
     11, 29, 50,  0,                  // muggle mode, exception to "must be 8 bytes long"
 };
-//uint8_t modes[] = { 1,2,3,4,5,6,7,8,9, HIDDENMODES };  // make sure this is long enough...
-uint8_t modes[9 + sizeof(hiddenmodes)];  // make sure this is long enough...
+//uint8_t g_u8modes[] = { 1,2,3,4,5,6,7,8,9, HIDDENMODES };  // make sure this is long enough...
+uint8_t g_u8modes[9 + sizeof(hiddenmodes)];  // make sure this is long enough...
 
 // Modes (gets set when the light starts up based on saved config values)
 PROGMEM const uint8_t ramp_7135[] = { RAMP_7135 };
 PROGMEM const uint8_t ramp_FET[]  = { RAMP_FET };
 
 void save_mode() {  // save the current mode index (with wear leveling)
-    uint8_t oldpos=eepos;
+    uint8_t oldpos=g_u8eepos;
 
-    eepos = (eepos+1) & ((EEPSIZE/2)-1);  // wear leveling, use next cell
+    g_u8eepos = (g_u8eepos+1) & ((EEPSIZE/2)-1);  // wear leveling, use next cell
 
-    eeprom_write_byte((uint8_t *)(eepos), mode_idx);  // save current state
+    eeprom_write_byte((uint8_t *)(g_u8eepos), g_u8mode_idx);  // save current state
     eeprom_write_byte((uint8_t *)(oldpos), 0xff);     // erase old state
 }
 
@@ -161,17 +161,17 @@ void save_mode() {  // save the current mode index (with wear leveling)
 void save_state() {  // central method for writing complete state
     save_mode();
 #ifdef USE_FIRSTBOOT
-    eeprom_write_byte((uint8_t *)OPT_firstboot, firstboot);
+    eeprom_write_byte((uint8_t *)OPT_firstboot, g_u8firstboot);
 #endif
-    eeprom_write_byte((uint8_t *)OPT_modegroup, modegroup);
-    eeprom_write_byte((uint8_t *)OPT_memory, memory);
+    eeprom_write_byte((uint8_t *)OPT_modegroup, g_u8modegroup);
+    eeprom_write_byte((uint8_t *)OPT_memory, g_u8memory);
 #ifdef OFFTIM3
-    eeprom_write_byte((uint8_t *)OPT_offtim3, offtim3);
+    eeprom_write_byte((uint8_t *)OPT_offtim3, g_u8offtim3);
 #endif
 #ifdef TEMPERATURE_MON
-    eeprom_write_byte((uint8_t *)OPT_maxtemp, maxtemp);
+    eeprom_write_byte((uint8_t *)OPT_maxtemp, g_u8maxtemp);
 #endif
-    eeprom_write_byte((uint8_t *)OPT_mode_override, mode_override);
+    eeprom_write_byte((uint8_t *)OPT_mode_override, g_u8mode_override);
     eeprom_write_byte((uint8_t *)OPT_moon, enable_moon);
     eeprom_write_byte((uint8_t *)OPT_revmodes, reverse_modes);
     eeprom_write_byte((uint8_t *)OPT_muggle, muggle_mode);
@@ -179,8 +179,8 @@ void save_state() {  // central method for writing complete state
 
 #ifndef USE_FIRSTBOOT
 static inline void reset_state() {
-    mode_idx = 0;
-    modegroup = 5;
+    g_u8mode_idx = 0;
+    g_u8modegroup = 5;
     save_state();
 }
 #endif
@@ -202,10 +202,10 @@ void restore_state() {
 #endif
 
     // find the mode index data
-    for(eepos=0; eepos<(EEPSIZE/2); eepos++) {
-        eep = eeprom_read_byte((const uint8_t *)eepos);
+    for(g_u8eepos=0; g_u8eepos<(EEPSIZE/2); g_u8eepos++) {
+        eep = eeprom_read_byte((const uint8_t *)g_u8eepos);
         if (eep != 0xff) {
-            mode_idx = eep;
+            g_u8mode_idx = eep;
 #ifndef USE_FIRSTBOOT
             first = 0;
 #endif
@@ -213,7 +213,7 @@ void restore_state() {
         }
     }
 #ifndef USE_FIRSTBOOT
-    // if no mode_idx was found, assume this is the first boot
+    // if no g_u8mode_idx was found, assume this is the first boot
     if (first) {
         reset_state();
         return;
@@ -221,35 +221,35 @@ void restore_state() {
 #endif
 
     // load other config values
-    modegroup = eeprom_read_byte((uint8_t *)OPT_modegroup);
-    memory    = eeprom_read_byte((uint8_t *)OPT_memory);
+    g_u8modegroup = eeprom_read_byte((uint8_t *)OPT_modegroup);
+    g_u8memory    = eeprom_read_byte((uint8_t *)OPT_memory);
 #ifdef OFFTIM3
-    offtim3   = eeprom_read_byte((uint8_t *)OPT_offtim3);
+    g_u8offtim3   = eeprom_read_byte((uint8_t *)OPT_offtim3);
 #endif
 #ifdef TEMPERATURE_MON
-    maxtemp   = eeprom_read_byte((uint8_t *)OPT_maxtemp);
+    g_u8maxtemp   = eeprom_read_byte((uint8_t *)OPT_maxtemp);
 #endif
-    mode_override = eeprom_read_byte((uint8_t *)OPT_mode_override);
+    g_u8mode_override = eeprom_read_byte((uint8_t *)OPT_mode_override);
     enable_moon   = eeprom_read_byte((uint8_t *)OPT_moon);
     reverse_modes = eeprom_read_byte((uint8_t *)OPT_revmodes);
     muggle_mode   = eeprom_read_byte((uint8_t *)OPT_muggle);
 
     // unnecessary, save_state handles wrap-around
     // (and we don't really care about it skipping cell 0 once in a while)
-    //else eepos=0;
+    //else g_u8eepos=0;
 
 #ifndef USE_FIRSTBOOT
-    if (modegroup >= NUM_MODEGROUPS) reset_state();
+    if (g_u8modegroup >= NUM_MODEGROUPS) reset_state();
 #endif
 }
 
 static inline void next_mode() {
-    mode_idx += 1;
-    if (mode_idx >= solid_modes) {
-        // Wrap around, skipping the hidden modes
+    g_u8mode_idx += 1;
+    if (g_u8mode_idx >= g_u8solid_modes) {
+        // Wrap around, skipping the hidden g_u8modes
         // (note: this also applies when going "forward" from any hidden mode)
-        // FIXME? Allow this to cycle through hidden modes?
-        mode_idx = 0;
+        // FIXME? Allow this to cycle through hidden g_u8modes?
+        g_u8mode_idx = 0;
     }
 }
 
@@ -260,29 +260,29 @@ static inline void prev_mode() {
         return next_mode();
     }
 
-    if (mode_idx == solid_modes) {
-        // If we hit the end of the hidden modes, go back to moon
-        mode_idx = 0;
-    } else if (mode_idx > 0) {
+    if (g_u8mode_idx == g_u8solid_modes) {
+        // If we hit the end of the hidden g_u8modes, go back to moon
+        g_u8mode_idx = 0;
+    } else if (g_u8mode_idx > 0) {
         // Regular mode: is between 1 and TOTAL_MODES
-        mode_idx -= 1;
+        g_u8mode_idx -= 1;
     } else {
-        // Otherwise, wrap around (this allows entering hidden modes)
-        mode_idx = mode_cnt - 1;
+        // Otherwise, wrap around (this allows entering hidden g_u8modes)
+        g_u8mode_idx = g_u8mode_cnt - 1;
     }
 }
 #endif
 
 void count_modes() {
     /*
-     * Determine how many solid and hidden modes we have.
+     * Determine how many solid and hidden g_u8modes we have.
      *
-     * (this matters because we have more than one set of modes to choose
+     * (this matters because we have more than one set of g_u8modes to choose
      *  from, so we need to count at runtime)
      */
     // copy config to local vars to avoid accidentally overwriting them in muggle mode
     // (also, it seems to reduce overall program size)
-    uint8_t my_modegroup = modegroup;
+    uint8_t my_modegroup = g_u8modegroup;
     uint8_t my_enable_moon = enable_moon;
     uint8_t my_reverse_modes = reverse_modes;
 
@@ -295,29 +295,29 @@ void count_modes() {
 
     uint8_t *dest;
     const uint8_t *src = modegroups + (my_modegroup<<3);
-    dest = modes;
+    dest = g_u8modes;
 
     // add moon mode (or not) if config says to add it
     if (my_enable_moon) {
-        modes[0] = 1;
+        g_u8modes[0] = 1;
         dest ++;
     }
 
-    // Figure out how many modes are in this group
-    //solid_modes = modegroup + 1;  // Assume group N has N modes
-    // No, how about actually counting the modes instead?
+    // Figure out how many g_u8modes are in this group
+    //g_u8solid_modes = g_u8modegroup + 1;  // Assume group N has N g_u8modes
+    // No, how about actually counting the g_u8modes instead?
     // (in case anyone changes the mode groups above so they don't form a triangle)
-    for(solid_modes=0;
-            (solid_modes<8) && pgm_read_byte(src);
-            solid_modes++, src++ )
+    for(g_u8solid_modes=0;
+            (g_u8solid_modes<8) && pgm_read_byte(src);
+            g_u8solid_modes++, src++ )
     {
         *dest++ = pgm_read_byte(src);
     }
 
-    // add regular modes
-    //memcpy_P(dest, src, solid_modes);  // was already copied above
-    // add hidden modes
-    //memcpy_P(dest + solid_modes, hiddenmodes, sizeof(hiddenmodes));
+    // add regular g_u8modes
+    //memcpy_P(dest, src, g_u8solid_modes);  // was already copied above
+    // add hidden g_u8modes
+    //memcpy_P(dest + g_u8solid_modes, hiddenmodes, sizeof(hiddenmodes));
     // smaller than memcpy_p()
     for( src=hiddenmodes; src<hiddenmodes+sizeof(hiddenmodes); src++ )
     {
@@ -325,14 +325,14 @@ void count_modes() {
     }
     // final count
 #ifdef OFFTIM3
-    mode_cnt = solid_modes + sizeof(hiddenmodes);
+    g_u8mode_cnt = g_u8solid_modes + sizeof(hiddenmodes);
 #endif
     if (my_reverse_modes) {
         // TODO: yuck, isn't there a better way to do this?
         int8_t i;
-        src += solid_modes;
-        dest = modes;
-        for(i=0; i<solid_modes; i++) {
+        src += g_u8solid_modes;
+        dest = g_u8modes;
+        for(i=0; i<g_u8solid_modes; i++) {
             src --;
             *dest = pgm_read_byte(src);
             dest ++;
@@ -340,11 +340,11 @@ void count_modes() {
         if (my_enable_moon) {
             *dest = 1;
         }
-        mode_cnt --;  // get rid of last hidden mode, since it's a duplicate turbo
+        g_u8mode_cnt --;  // get rid of last hidden mode, since it's a duplicate turbo
     }
     if (my_enable_moon) {
-        mode_cnt ++;
-        solid_modes ++;
+        g_u8mode_cnt ++;
+        g_u8solid_modes ++;
     }
 }
 
@@ -522,41 +522,41 @@ int main(void)
 
 
     // TODO: Enable this?  (might prevent some corner cases, but requires extra room)
-    // memory decayed, reset it
+    // g_u8memory decayed, reset it
     // (should happen on med/long press instead
     //  because mem decay is *much* slower when the OTC is charged
     //  so let's not wait until it decays to reset it)
-    //if (fast_presses > 0x20) { fast_presses = 0; }
+    //if (g_u8fast_presses > 0x20) { g_u8fast_presses = 0; }
 
     // check button press time, unless the mode is overridden
-    if (! mode_override) {
+    if (! g_u8mode_override) {
 #ifdef OFFTIM3
         if (cap_val > CAP_SHORT) {
 #else
-        if (fast_presses < 0x20) {
+        if (g_u8fast_presses < 0x20) {
 #endif
             // Indicates they did a short press, go to the next mode
-            // We don't care what the fast_presses value is as long as it's over 15
-            fast_presses = (fast_presses+1) & 0x1f;
+            // We don't care what the g_u8fast_presses value is as long as it's over 15
+            g_u8fast_presses = (g_u8fast_presses+1) & 0x1f;
             next_mode(); // Will handle wrap arounds
 #ifdef OFFTIM3
         } else if (cap_val > CAP_MED) {
             // User did a medium press, go back one mode
-            fast_presses = 0;
-            if (offtim3) {
-                prev_mode();  // Will handle "negative" modes and wrap-arounds
+            g_u8fast_presses = 0;
+            if (g_u8offtim3) {
+                prev_mode();  // Will handle "negative" g_u8modes and wrap-arounds
             } else {
                 next_mode();  // disabled-med-press acts like short-press
-                // (except that fast_presses isn't reliable then)
+                // (except that g_u8fast_presses isn't reliable then)
             }
 #endif
         } else {
             // Long press, keep the same mode
             // ... or reset to the first mode
-            fast_presses = 0;
-            if (muggle_mode  || (! memory)) {
+            g_u8fast_presses = 0;
+            if (muggle_mode  || (! g_u8memory)) {
                 // Reset to the first mode
-                mode_idx = 0;
+                g_u8mode_idx = 0;
             }
         }
     }
@@ -587,21 +587,21 @@ int main(void)
     // Make sure voltage reading is running for later
     ADCSRA |= (1 << ADSC);
 #endif
-    //output = pgm_read_byte(modes + mode_idx);
-    output = modes[mode_idx];
+    //output = pgm_read_byte(g_u8modes + g_u8mode_idx);
+    output = g_u8modes[g_u8mode_idx];
     actual_level = output;
     // handle mode overrides, like mode group selection and temperature calibration
-    if (mode_override) {
+    if (g_u8mode_override) {
         // do nothing; mode is already set
-        //mode_idx = mode_override;
-        fast_presses = 0;
-        output = mode_idx;
+        //g_u8mode_idx = g_u8mode_override;
+        g_u8fast_presses = 0;
+        output = g_u8mode_idx;
     }
     while(1) {
-        if (fast_presses > 0x0f) {  // Config mode
+        if (g_u8fast_presses > 0x0f) {  // Config mode
             _delay_s();       // wait for user to stop fast-pressing button
-            fast_presses = 0; // exit this mode after one use
-            mode_idx = 0;
+            g_u8fast_presses = 0; // exit this mode after one use
+            g_u8mode_idx = 0;
 
             // Enter or leave "muggle mode"?
             toggle(&muggle_mode, 1);
@@ -609,34 +609,34 @@ int main(void)
                 continue;
             };  // don't offer other options in muggle mode
 
-            toggle(&memory, 2);
+            toggle(&g_u8memory, 2);
 
             toggle(&enable_moon, 3);
 
             toggle(&reverse_modes, 4);
 
             // Enter the mode group selection mode?
-            mode_idx = GROUP_SELECT_MODE;
-            toggle(&mode_override, 5);
-            mode_idx = 0;
+            g_u8mode_idx = GROUP_SELECT_MODE;
+            toggle(&g_u8mode_override, 5);
+            g_u8mode_idx = 0;
 
 #ifdef OFFTIM3
-            toggle(&offtim3, 6);
+            toggle(&g_u8offtim3, 6);
 #endif
 
 #ifdef TEMPERATURE_MON
             // Enter temperature calibration mode?
-            mode_idx = TEMP_CAL_MODE;
-            toggle(&mode_override, 7);
-            mode_idx = 0;
+            g_u8mode_idx = TEMP_CAL_MODE;
+            toggle(&g_u8mode_override, 7);
+            g_u8mode_idx = 0;
 #endif
 
 #ifdef USE_FIRSTBOOT
-            toggle(&firstboot, 8);
+            toggle(&g_u8firstboot, 8);
 #endif
 
-            //output = pgm_read_byte(modes + mode_idx);
-            output = modes[mode_idx];
+            //output = pgm_read_byte(g_u8modes + g_u8mode_idx);
+            output = g_u8modes[g_u8mode_idx];
             actual_level = output;
         }
 #ifdef STROBE
@@ -727,11 +727,11 @@ int main(void)
 #endif // ifdef BATTCHECK
         else if (output == GROUP_SELECT_MODE) {
             // exit this mode after one use
-            mode_idx = 0;
-            mode_override = 0;
+            g_u8mode_idx = 0;
+            g_u8mode_override = 0;
 
             for(i=0; i<NUM_MODEGROUPS; i++) {
-                modegroup = i;
+                g_u8modegroup = i;
                 save_state();
 
                 blink(1, BLINK_SPEED/3);
@@ -742,11 +742,11 @@ int main(void)
 #ifdef TEMP_CAL_MODE
         else if (output == TEMP_CAL_MODE) {
             // make sure we don't stay in this mode after button press
-            mode_idx = 0;
-            mode_override = 0;
+            g_u8mode_idx = 0;
+            g_u8mode_override = 0;
 
             // Allow the user to turn off thermal regulation if they want
-            maxtemp = 255;
+            g_u8maxtemp = 255;
             save_state();
             set_mode(RAMP_SIZE/4);  // start somewhat dim during turn-off-regulation mode
             _delay_s();
@@ -757,7 +757,7 @@ int main(void)
 
             // measure, save, wait...  repeat
             while(1) {
-                maxtemp = get_temp();
+                g_u8maxtemp = get_temp();
                 save_state();
                 _delay_s();
                 _delay_s();
@@ -770,7 +770,7 @@ int main(void)
             uint8_t temp = get_temp();
 
             // step down? (or step back up?)
-            if (temp >= maxtemp) {
+            if (temp >= g_u8maxtemp) {
                 overheat_count ++;
                 // reduce noise, and limit the lowest step-down level
                 if ((overheat_count > 15) && (actual_level > (RAMP_SIZE/8))) {
@@ -781,7 +781,7 @@ int main(void)
             } else {
                 // if we're not overheated, ramp up to the user-requested level
                 overheat_count = 0;
-                if ((temp < maxtemp - 2) && (actual_level < output)) {
+                if ((temp < g_u8maxtemp - 2) && (actual_level < output)) {
                     actual_level ++;
                 }
             }
@@ -794,9 +794,9 @@ int main(void)
 
             // If we got this far, the user has stopped fast-pressing.
             // So, don't enter config mode.
-            //fast_presses = 0;
+            //g_u8fast_presses = 0;
         }
-        fast_presses = 0;
+        g_u8fast_presses = 0;
 #ifdef VOLTAGE_MON
         if (ADCSRA & (1 << ADIF)) {  // if a voltage reading is ready
             voltage = ADCH;  // get the waiting value
@@ -811,17 +811,17 @@ int main(void)
                 // DEBUG: blink on step-down:
                 //set_level(0);  _delay_ms(100);
 
-                if (actual_level > RAMP_SIZE) {  // hidden / blinky modes
-                    // step down from blinky modes to medium
+                if (actual_level > RAMP_SIZE) {  // hidden / blinky g_u8modes
+                    // step down from blinky g_u8modes to medium
                     actual_level = RAMP_SIZE / 2;
                 } else if (actual_level > 1) {  // regular solid mode
-                    // step down from solid modes somewhat gradually
+                    // step down from solid g_u8modes somewhat gradually
                     // drop by 25% each time
                     actual_level = (actual_level >> 2) + (actual_level >> 1);
                     // drop by 50% each time
                     //actual_level = (actual_level >> 1);
                 } else { // Already at the lowest mode
-                    //mode_idx = 0;  // unnecessary; we never leave this clause
+                    //g_u8mode_idx = 0;  // unnecessary; we never leave this clause
                     //actual_level = 0;  // unnecessary; we never leave this clause
                     // Turn off the light
                     set_level(0);
