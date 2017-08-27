@@ -133,8 +133,8 @@ PROGMEM const uint8_t modegroups[] = {
 uint8_t g_u8modes[8u];  // make sure this is long enough...
 
 // Modes (gets set when the light starts up based on saved config values)
-//PROGMEM const uint8_t ramp_7135[] = { RAMP_7135 };
-PROGMEM const uint8_t ramp_FET[]  = { RAMP_FET };
+PROGMEM const uint8_t ramp_7135[] = { RAMP_7135 };
+//PROGMEM const uint8_t ramp_FET[]  = { RAMP_FET };
 
 #define WEAR_LVL_LEN (EEPSIZE/2)  // must be a power of 2
 void save_mode() {  // save the current mode index (with wear leveling)
@@ -377,7 +377,7 @@ void set_level(uint8_t level) {
             TCCR0A = FAST;
         }
         //set_output(pgm_read_byte(ramp_FET + level), 0);
-        set_output(pgm_read_byte(ramp_FET + level - 1));
+        set_output(pgm_read_byte(ramp_7135 + level - 1));
     }
 }
 
