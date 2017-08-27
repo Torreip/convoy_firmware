@@ -24,7 +24,7 @@
 #define VOLTAGE_MON         // Comment out to disable LVP
 
 #define OFFTIM3             // Use short/med/long off-time presses
-                            // instead of just short/long
+// instead of just short/long
 
 // ../../bin/level_calc.py 64 1 10 1300 y 3 0.23 140
 #define RAMP_SIZE  64

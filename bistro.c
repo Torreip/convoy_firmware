@@ -130,7 +130,7 @@ PROGMEM const uint8_t modegroups[] = {
     11, 20, 31, 41, 53, 64,  0,  0,
     29, 64,POLICE_STROBE,0,0,0,0,0,  // 7: special group A
     BIKING_STROBE,BATTCHECK,11,29,64,0,0,0,  // 8: special group B
-     9, 18, 29, 46, 64,  0,  0,  0,  // 9: special group C
+    9, 18, 29, 46, 64,  0,  0,  0,  // 9: special group C
     11, 29, 50,  0,                  // muggle mode, exception to "must be 8 bytes long"
 };
 //uint8_t modes[] = { 1,2,3,4,5,6,7,8,9, HIDDENMODES };  // make sure this is long enough...
@@ -256,7 +256,9 @@ static inline void next_mode() {
 #ifdef OFFTIM3
 static inline void prev_mode() {
     // simple mode has no reverse
-    if (muggle_mode) { return next_mode(); }
+    if (muggle_mode) {
+        return next_mode();
+    }
 
     if (mode_idx == solid_modes) {
         // If we hit the end of the hidden modes, go back to moon
@@ -306,8 +308,8 @@ void count_modes() {
     // No, how about actually counting the modes instead?
     // (in case anyone changes the mode groups above so they don't form a triangle)
     for(solid_modes=0;
-        (solid_modes<8) && pgm_read_byte(src);
-        solid_modes++, src++ )
+            (solid_modes<8) && pgm_read_byte(src);
+            solid_modes++, src++ )
     {
         *dest++ = pgm_read_byte(src);
     }
@@ -358,9 +360,9 @@ static inline void set_output(uint8_t pwm1) {
     }
     */
     PWM_LVL = pwm1;
-    #ifdef ALT_PWM_LVL
+#ifdef ALT_PWM_LVL
     ALT_PWM_LVL = pwm2;
-    #endif
+#endif
 }
 
 void set_level(uint8_t level) {
@@ -407,7 +409,7 @@ void blink(uint8_t val, uint16_t speed)
 
 static inline void strobe(uint8_t ontime, uint8_t offtime) {
     uint8_t i;
-    for(i=0;i<8;i++) {
+    for(i=0; i<8; i++) {
         set_level(RAMP_SIZE);
         _delay_ms(ontime);
         set_level(0);
@@ -423,7 +425,8 @@ static inline void SOS_mode() {
     blink(3, SOS_SPEED*5/2);
     //_delay_ms(SOS_SPEED);
     blink(3, SOS_SPEED);
-    _delay_s(); _delay_s();
+    _delay_s();
+    _delay_s();
 }
 #endif
 
@@ -500,9 +503,9 @@ int main(void)
 
     // Set PWM pin to output
     DDRB |= (1 << PWM_PIN);     // enable main channel
-    #ifdef ALT_PWM_PIN
+#ifdef ALT_PWM_PIN
     DDRB |= (1 << ALT_PWM_PIN); // enable second channel
-    #endif
+#endif
 
     // Set timer to do PWM for correct output pin and set prescaler timing
     //TCCR0A = 0x23; // phase corrected PWM is 0x21 for PB1, fast-PWM is 0x23
@@ -544,7 +547,7 @@ int main(void)
                 prev_mode();  // Will handle "negative" modes and wrap-arounds
             } else {
                 next_mode();  // disabled-med-press acts like short-press
-                              // (except that fast_presses isn't reliable then)
+                // (except that fast_presses isn't reliable then)
             }
 #endif
         } else {
@@ -559,18 +562,18 @@ int main(void)
     }
     save_mode();
 
-    #ifdef CAP_PIN
+#ifdef CAP_PIN
     // Charge up the capacitor by setting CAP_PIN to output
     DDRB  |= (1 << CAP_PIN);    // Output
     PORTB |= (1 << CAP_PIN);    // High
-    #endif
+#endif
 
     // Turn features on or off as needed
-    #ifdef VOLTAGE_MON
+#ifdef VOLTAGE_MON
     ADC_on();
-    #else
+#else
     ADC_off();
-    #endif
+#endif
 
     uint8_t output;
     uint8_t actual_level;
@@ -602,7 +605,9 @@ int main(void)
 
             // Enter or leave "muggle mode"?
             toggle(&muggle_mode, 1);
-            if (muggle_mode) { continue; };  // don't offer other options in muggle mode
+            if (muggle_mode) {
+                continue;
+            };  // don't offer other options in muggle mode
 
             toggle(&memory, 2);
 
@@ -626,9 +631,9 @@ int main(void)
             mode_idx = 0;
 #endif
 
-            #ifdef USE_FIRSTBOOT
+#ifdef USE_FIRSTBOOT
             toggle(&firstboot, 8);
-            #endif
+#endif
 
             //output = pgm_read_byte(modes + mode_idx);
             output = modes[mode_idx];
@@ -644,10 +649,10 @@ int main(void)
         else if (output == POLICE_STROBE) {
             // police-like strobe
             //for(i=0;i<8;i++) {
-                strobe(20,40);
+            strobe(20,40);
             //}
             //for(i=0;i<8;i++) {
-                strobe(40,80);
+            strobe(40,80);
             //}
         }
 #endif // ifdef POLICE_STROBE
@@ -664,7 +669,7 @@ int main(void)
             // 2-level stutter beacon for biking and such
 #ifdef FULL_BIKING_STROBE
             // normal version
-            for(i=0;i<4;i++) {
+            for(i=0; i<4; i++) {
                 set_output(255,0);
                 _delay_ms(5);
                 set_output(0,255);
@@ -681,7 +686,9 @@ int main(void)
         }
 #endif  // ifdef BIKING_STROBE
 #ifdef SOS
-        else if (output == SOS) { SOS_mode(); }
+        else if (output == SOS) {
+            SOS_mode();
+        }
 #endif // ifdef SOS
 #ifdef RAMP
         else if (output == RAMP) {
@@ -714,7 +721,8 @@ int main(void)
             blink(battcheck(), BLINK_SPEED/8);
 #endif  // ifdef BATTCHECK_VpT
             // wait between readouts
-            _delay_s(); _delay_s();
+            _delay_s();
+            _delay_s();
         }
 #endif // ifdef BATTCHECK
         else if (output == GROUP_SELECT_MODE) {
@@ -728,7 +736,8 @@ int main(void)
 
                 blink(1, BLINK_SPEED/3);
             }
-            _delay_s(); _delay_s();
+            _delay_s();
+            _delay_s();
         }
 #ifdef TEMP_CAL_MODE
         else if (output == TEMP_CAL_MODE) {
@@ -740,7 +749,8 @@ int main(void)
             maxtemp = 255;
             save_state();
             set_mode(RAMP_SIZE/4);  // start somewhat dim during turn-off-regulation mode
-            _delay_s(); _delay_s();
+            _delay_s();
+            _delay_s();
 
             // run at highest output level, to generate heat
             set_mode(RAMP_SIZE);
@@ -749,7 +759,8 @@ int main(void)
             while(1) {
                 maxtemp = get_temp();
                 save_state();
-                _delay_s(); _delay_s();
+                _delay_s();
+                _delay_s();
             }
         }
 #endif  // TEMP_CAL_MODE

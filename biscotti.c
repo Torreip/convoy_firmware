@@ -116,18 +116,18 @@ uint8_t solid_modes;
 // Each group must be 8 values long, but can be cut short with a zero.
 #define NUM_MODEGROUPS 12  // don't count muggle mode
 PROGMEM const uint8_t modegroups[] = {
-     1,  2,  3,  5,  7,  POLICE_STROBE, BIKING_STROBE, BATTCHECK,
-     1,  2,  3,  5,  7,  0,  0,  0,
-     7,  5,  3,  2,  1,  0,  0,  0,
-     2,  4,  7,  POLICE_STROBE, BIKING_STROBE, BATTCHECK, SOS,  0,
-     2,  4,  7,  0,  0,  0,  0,  0,
-     7,  4,  2,  0,  0,  0,  0,  0,
-     1,  2,  3,  6,  POLICE_STROBE, BIKING_STROBE, BATTCHECK, SOS,
-     1,  2,  3,  6,  0,  0,  0,  0,
-     6,  3,  2,  1,  0,  0,  0,  0,
-     2,  3,  5,  7,  0,  0,  0,  0,
-     7,  4, POLICE_STROBE,0,0,  0,  0,  0,
-     7,  0,
+    1,  2,  3,  5,  7,  POLICE_STROBE, BIKING_STROBE, BATTCHECK,
+    1,  2,  3,  5,  7,  0,  0,  0,
+    7,  5,  3,  2,  1,  0,  0,  0,
+    2,  4,  7,  POLICE_STROBE, BIKING_STROBE, BATTCHECK, SOS,  0,
+    2,  4,  7,  0,  0,  0,  0,  0,
+    7,  4,  2,  0,  0,  0,  0,  0,
+    1,  2,  3,  6,  POLICE_STROBE, BIKING_STROBE, BATTCHECK, SOS,
+    1,  2,  3,  6,  0,  0,  0,  0,
+    6,  3,  2,  1,  0,  0,  0,  0,
+    2,  3,  5,  7,  0,  0,  0,  0,
+    7,  4,  POLICE_STROBE,  0,  0,  0,  0,  0,
+    7,  0,
 };
 uint8_t modes[8];  // make sure this is long enough...
 
@@ -307,8 +307,8 @@ void count_modes() {
     // (in case anyone changes the mode groups above so they don't form a triangle)
     uint8_t count;
     for(count=0;
-        (count<8) && pgm_read_byte(src);
-        count++, src++ )
+            (count<8) && pgm_read_byte(src);
+            count++, src++ )
     {
         *dest++ = pgm_read_byte(src);
     }
@@ -368,9 +368,9 @@ void set_output(uint8_t pwm1) {
     }
     */
     PWM_LVL = pwm1;
-    #ifdef ALT_PWM_LVL
+#ifdef ALT_PWM_LVL
     ALT_PWM_LVL = pwm2;
-    #endif
+#endif
 }
 
 void set_level(uint8_t level) {
@@ -414,7 +414,7 @@ void set_mode(uint8_t mode) {
 }
 #else
 #define set_mode set_level
-    //set_level(mode);
+//set_level(mode);
 #endif  // SOFT_START
 
 void blink(uint8_t val, uint8_t speed)
@@ -432,7 +432,7 @@ void blink(uint8_t val, uint8_t speed)
 #ifdef ANY_STROBE
 void strobe(uint8_t ontime, uint8_t offtime) {
     uint8_t i;
-    for(i=0;i<8;i++) {
+    for(i=0; i<8; i++) {
         set_level(RAMP_SIZE);
         _delay_4ms(ontime);
         set_level(0);
@@ -449,7 +449,8 @@ void SOS_mode() {
     blink(3, SOS_SPEED*5/2);
     //_delay_4ms(SOS_SPEED);
     blink(3, SOS_SPEED);
-    _delay_s(); _delay_s();
+    _delay_s();
+    _delay_s();
 }
 #endif
 
@@ -526,9 +527,9 @@ int main(void)
 
     // Set PWM pin to output
     DDRB |= (1 << PWM_PIN);     // enable main channel
-    #ifdef ALT_PWM_PIN
+#ifdef ALT_PWM_PIN
     DDRB |= (1 << ALT_PWM_PIN); // enable second channel
-    #endif
+#endif
 
     // Set timer to do PWM for correct output pin and set prescaler timing
     //TCCR0A = 0x23; // phase corrected PWM is 0x21 for PB1, fast-PWM is 0x23
@@ -570,7 +571,7 @@ int main(void)
                 prev_mode();  // Will handle "negative" modes and wrap-arounds
             } else {
                 next_mode();  // disabled-med-press acts like short-press
-                              // (except that fast_presses isn't reliable then)
+                // (except that fast_presses isn't reliable then)
             }
 #endif
         } else {
@@ -672,10 +673,10 @@ int main(void)
         else if (output == POLICE_STROBE) {
             // police-like strobe
             //for(i=0;i<8;i++) {
-                strobe(20/4,40/4);
+            strobe(20/4,40/4);
             //}
             //for(i=0;i<8;i++) {
-                strobe(40/4,80/4);
+            strobe(40/4,80/4);
             //}
         }
 #endif // ifdef POLICE_STROBE
@@ -692,7 +693,7 @@ int main(void)
             // 2-level stutter beacon for biking and such
 #ifdef FULL_BIKING_STROBE
             // normal version
-            for(i=0;i<4;i++) {
+            for(i=0; i<4; i++) {
                 //set_output(255,0);
                 set_mode(RAMP_SIZE);
                 _delay_4ms(3);
@@ -714,7 +715,9 @@ int main(void)
         }
 #endif  // ifdef BIKING_STROBE
 #ifdef SOS
-        else if (output == SOS) { SOS_mode(); }
+        else if (output == SOS) {
+            SOS_mode();
+        }
 #endif // ifdef SOS
 #ifdef RAMP
         else if (output == RAMP) {
@@ -747,7 +750,8 @@ int main(void)
             blink(battcheck(), BLINK_SPEED/4);
 #endif  // ifdef BATTCHECK_VpT
             // wait between readouts
-            _delay_s(); _delay_s();
+            _delay_s();
+            _delay_s();
         }
 #endif // ifdef BATTCHECK
         else if (output == GROUP_SELECT_MODE) {
@@ -760,7 +764,8 @@ int main(void)
                 save_state();
 
                 blink(i+1, BLINK_SPEED/4);
-                _delay_s(); _delay_s();
+                _delay_s();
+                _delay_s();
             }
             _delay_s();
         }
@@ -774,7 +779,8 @@ int main(void)
             maxtemp = 255;
             save_state();
             set_mode(RAMP_SIZE/4);  // start somewhat dim during turn-off-regulation mode
-            _delay_s(); _delay_s();
+            _delay_s();
+            _delay_s();
 
             // run at highest output level, to generate heat
             set_mode(RAMP_SIZE);
@@ -783,7 +789,8 @@ int main(void)
             while(1) {
                 maxtemp = get_temperature();
                 save_state();
-                _delay_s(); _delay_s();
+                _delay_s();
+                _delay_s();
             }
         }
 #endif  // TEMP_CAL_MODE

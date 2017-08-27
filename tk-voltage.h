@@ -66,11 +66,11 @@ void ADC_on_temperature() {
     //       (apparently can only read while the CPU is in idle mode though)
     // select ADC4 by writing 0b00001111 to ADMUX
     // 1.1v reference, left-adjust, ADC4
-    #ifdef TEMP_10bit
+#ifdef TEMP_10bit
     ADMUX  = (1 << V_REF) | (0 << ADLAR) | TEMP_CHANNEL;
-    #else
+#else
     ADMUX  = (1 << V_REF) | (1 << ADLAR) | TEMP_CHANNEL;
-    #endif
+#endif
     // disable digital input on ADC pin to reduce power consumption
     //DIDR0 |= (1 << TEMP_DIDR);
     // enable, start, prescale
@@ -123,7 +123,7 @@ static inline uint16_t read_adc_10bit() {
 #ifdef USE_BATTCHECK
 #  ifdef BATTCHECK_4bars
 PROGMEM const uint8_t voltage_blinks[] = {
-               // 0 blinks for less than 1%
+    // 0 blinks for less than 1%
     ADC_0p,    // 1 blink  for 1%-25%
     ADC_25p,   // 2 blinks for 25%-50%
     ADC_50p,   // 3 blinks for 50%-75%
@@ -134,7 +134,7 @@ PROGMEM const uint8_t voltage_blinks[] = {
 #  endif  // BATTCHECK_4bars
 #  ifdef BATTCHECK_8bars
 PROGMEM const uint8_t voltage_blinks[] = {
-               // 0 blinks for less than 1%
+    // 0 blinks for less than 1%
     ADC_30,    // 1 blink  for 1%-12.5%
     ADC_33,    // 2 blinks for 12.5%-25%
     ADC_35,    // 3 blinks for 25%-37.5%
@@ -203,11 +203,11 @@ uint8_t battcheck() {
     voltage = get_voltage();
     // figure out how many times to blink
     for (i=0;
-         voltage > pgm_read_byte(voltage_blinks + i);
-         i += 2) {}
+            voltage > pgm_read_byte(voltage_blinks + i);
+            i += 2) {}
     return pgm_read_byte(voltage_blinks + i + 1);
 }
-  #else  // #ifdef BATTCHECK_VpT
+#else  // #ifdef BATTCHECK_VpT
 uint8_t battcheck() {
     // Return an int, number of "blinks", for approximate battery charge
     // Uses the table above for return values
@@ -215,11 +215,11 @@ uint8_t battcheck() {
     voltage = get_voltage();
     // figure out how many times to blink
     for (i=0;
-         voltage > pgm_read_byte(voltage_blinks + i);
-         i ++) {}
+            voltage > pgm_read_byte(voltage_blinks + i);
+            i ++) {}
     return i;
 }
-  #endif  // BATTCHECK_VpT
+#endif  // BATTCHECK_VpT
 #endif
 
 

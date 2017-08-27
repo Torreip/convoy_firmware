@@ -27,18 +27,18 @@
 
 /******************** hardware-specific values **************************/
 #if (ATTINY == 13)
-    #define F_CPU 4800000UL
-    #define EEPSIZE 64
-    #define V_REF REFS0
-    #define BOGOMIPS 950
+#define F_CPU 4800000UL
+#define EEPSIZE 64
+#define V_REF REFS0
+#define BOGOMIPS 950
 #elif (ATTINY == 25)
-    // TODO: Use 6.4 MHz instead of 8 MHz?
-    #define F_CPU 8000000UL
-    #define EEPSIZE 128
-    #define V_REF REFS1
-    #define BOGOMIPS (F_CPU/4000)
+// TODO: Use 6.4 MHz instead of 8 MHz?
+#define F_CPU 8000000UL
+#define EEPSIZE 128
+#define V_REF REFS1
+#define BOGOMIPS (F_CPU/4000)
 #else
-    Hey, you need to define ATTINY.
+Hey, you need to define ATTINY.
 #endif
 
 
@@ -146,7 +146,7 @@
 #endif  // NANJG_LAYOUT
 
 #ifndef PWM_LVL
-    Hey, you need to define an I/O pin layout.
+Hey, you need to define an I/O pin layout.
 #endif
 
 #endif  // TK_ATTINY_H

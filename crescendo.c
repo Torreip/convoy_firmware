@@ -326,15 +326,15 @@ void save_mode() {  // save the current mode index (with wear leveling)
 #define OPT_memory (EEP_WEAR_LVL_LEN+1)
 #define OPT_therm_ceil (EEP_WEAR_LVL_LEN+2)
 void save_state() {
-    #ifdef MEMORY
+#ifdef MEMORY
     save_mode();
-    #endif
-    #ifdef MEMTOGGLE
+#endif
+#ifdef MEMTOGGLE
     eeprom_write_byte((uint8_t *)OPT_memory, memory);
-    #endif
-    #ifdef THERM_CALIBRATION_MODE
+#endif
+#ifdef THERM_CALIBRATION_MODE
     eeprom_write_byte((uint8_t *)OPT_therm_ceil, therm_ceil);
-    #endif
+#endif
 }
 #else
 #define save_state save_mode
@@ -343,23 +343,27 @@ void save_state() {
 #ifdef CONFIG_MODE
 void restore_state() {
     uint8_t eep;
-    #ifdef MEMTOGGLE
+#ifdef MEMTOGGLE
     // memory is either 1 or 0
     // (if it's unconfigured, 0xFF, assume it's off)
     eep = eeprom_read_byte((uint8_t *)OPT_memory);
-    if (eep < 2) { memory = eep; }
-    else { memory = 0; }
-    #endif
+    if (eep < 2) {
+        memory = eep;
+    }
+    else {
+        memory = 0;
+    }
+#endif
 
-    #ifdef THERM_CALIBRATION_MODE
+#ifdef THERM_CALIBRATION_MODE
     // load therm_ceil
     eep = eeprom_read_byte((uint8_t *)OPT_therm_ceil);
     if ((eep > 0) && (eep < MAX_THERM_CEIL)) {
         therm_ceil = eep;
     }
-    #endif
+#endif
 
-    #ifdef MEMORY
+#ifdef MEMORY
     // find the mode index and last brightness level
     for(eepos=0; eepos<EEP_WEAR_LVL_LEN; eepos+=2) {
         eep = eeprom_read_byte((const uint8_t *)eepos);
@@ -372,7 +376,7 @@ void restore_state() {
             break;
         }
     }
-    #endif
+#endif
 }
 #endif  // ifdef CONFIG_MODE
 
@@ -403,27 +407,27 @@ static inline void set_output(uint8_t pwm1) {
 #endif
 #endif
     PWM_LVL = pwm1;
-    #ifdef RAMP_CH2
+#ifdef RAMP_CH2
     ALT_PWM_LVL = pwm2;
-    #endif
-    #ifdef RAMP_CH3
+#endif
+#ifdef RAMP_CH3
     FET_PWM_LVL = pwm3;
-    #endif
+#endif
 }
 
 void set_level(uint8_t level) {
     actual_level = level;
     TCCR0A = PHASE;
     if (level == 0) {
-        #ifdef RAMP_CH3
+#ifdef RAMP_CH3
         set_output(0,0,0);
-        #else
-        #ifdef RAMP_CH2
+#else
+#ifdef RAMP_CH2
         set_output(0,0);
-        #else
+#else
         set_output(0);
-        #endif  // ifdef RAMP_CH2
-        #endif  // ifdef RAMP_CH3
+#endif  // ifdef RAMP_CH2
+#endif  // ifdef RAMP_CH3
     } else {
         /*
         if (level > 2) {
@@ -432,18 +436,18 @@ void set_level(uint8_t level) {
             TCCR0A = FAST;
         }
         */
-        #ifdef RAMP_CH3
+#ifdef RAMP_CH3
         set_output(pgm_read_byte(ramp_ch1 + level - 1),
                    pgm_read_byte(ramp_ch2 + level - 1),
                    pgm_read_byte(ramp_ch3 + level - 1));
-        #else
-        #ifdef RAMP_CH2
+#else
+#ifdef RAMP_CH2
         set_output(pgm_read_byte(ramp_ch1 + level - 1),
                    pgm_read_byte(ramp_ch2 + level - 1));
-        #else
+#else
         set_output(pgm_read_byte(ramp_ch1 + level - 1));
-        #endif
-        #endif
+#endif
+#endif
     }
 }
 
@@ -468,7 +472,7 @@ void strobe(uint8_t ontime, uint8_t offtime) {
 static inline void strobe(uint8_t ontime, uint8_t offtime) {
 #endif
     uint8_t i;
-    for(i=0;i<8;i++) {
+    for(i=0; i<8; i++) {
         set_level(RAMP_SIZE);
         _delay_4ms(ontime);
         set_level(0);
@@ -491,7 +495,7 @@ static inline void party_strobe(uint8_t ontime, uint8_t offtime) {
 
 void party_strobe_loop(uint8_t ontime, uint8_t offtime) {
     uint8_t i;
-    for(i=0;i<32;i++) {
+    for(i=0; i<32; i++) {
         party_strobe(ontime, offtime);
     }
 }
@@ -505,16 +509,17 @@ static inline void SOS_mode() {
     blink(3, SOS_SPEED*5/2);
     //_delay_4ms(SOS_SPEED);
     blink(3, SOS_SPEED);
-    _delay_s(); _delay_s();
+    _delay_s();
+    _delay_s();
 }
 #endif
 
 #ifdef BIKING_MODE
 static inline void biking_mode(uint8_t lo, uint8_t hi) {
-    #ifdef FULL_BIKING_MODE
+#ifdef FULL_BIKING_MODE
     // normal version
     uint8_t i;
-    for(i=0;i<4;i++) {
+    for(i=0; i<4; i++) {
         //set_output(255,0);
         set_mode(hi);
         _delay_4ms(2);
@@ -524,7 +529,7 @@ static inline void biking_mode(uint8_t lo, uint8_t hi) {
     }
     //_delay_ms(720);
     _delay_s();
-    #else  // smaller bike mode
+#else  // smaller bike mode
     // small/minimal version
     set_mode(hi);
     //set_output(255,0);
@@ -532,7 +537,7 @@ static inline void biking_mode(uint8_t lo, uint8_t hi) {
     set_mode(lo);
     //set_output(0,255);
     _delay_s();
-    #endif  // ifdef FULL_BIKING_MODE
+#endif  // ifdef FULL_BIKING_MODE
 }
 #endif
 
@@ -594,13 +599,13 @@ int main(void)
 {
     // Set PWM pin to output
     DDRB |= (1 << PWM_PIN);     // enable main channel
-    #ifdef RAMP_CH2
+#ifdef RAMP_CH2
     DDRB |= (1 << ALT_PWM_PIN); // enable second channel
-    #endif
-    #ifdef RAMP_CH3
+#endif
+#ifdef RAMP_CH3
     // enable second PWM counter (OC1B) and third channel (FET, PB4)
     DDRB |= (1 << FET_PWM_PIN); // enable third channel (DDB4)
-    #endif
+#endif
 
     // Set timer to do PWM for correct output pin and set prescaler timing
     //TCCR0A = 0x23; // phase corrected PWM is 0x21 for PB1, fast-PWM is 0x23
@@ -609,18 +614,18 @@ int main(void)
     // Set timer to do PWM for correct output pin and set prescaler timing
     TCCR0B = 0x01; // pre-scaler for timer (1 => 1, 2 => 8, 3 => 64...)
 
-    #ifdef RAMP_CH3
+#ifdef RAMP_CH3
     // Second PWM counter is ... weird
     TCCR1 = _BV (CS10);
     GTCCR = _BV (COM1B1) | _BV (PWM1B);
     OCR1C = 255;  // Set ceiling value to maximum
-    #endif
+#endif
 
-    #ifdef CONFIG_MODE
+#ifdef CONFIG_MODE
     uint8_t mode_override = 0;
     // Read config values and saved state
     restore_state();
-    #endif
+#endif
 
     // check button press time, unless the mode is overridden
     if (! long_press) {
@@ -636,56 +641,58 @@ int main(void)
         ramp_dir = 1;
         next_mode_num = 255;
         mode_idx = 0;
-        #ifdef MEMORY
-        #ifdef MEMTOGGLE
-        if (memory) { mode_override = MEMORY; }
-        #else
+#ifdef MEMORY
+#ifdef MEMTOGGLE
+        if (memory) {
+            mode_override = MEMORY;
+        }
+#else
         mode_override = MEMORY;
-        #endif  // ifdef MEMTOGGLE
-        #endif  // ifdef MEMORY
+#endif  // ifdef MEMTOGGLE
+#endif  // ifdef MEMORY
     }
     long_press = 0;
-    #ifdef MEMORY
+#ifdef MEMORY
     save_mode();
-    #endif
+#endif
 
     // Turn features on or off as needed
-    #ifdef VOLTAGE_MON
-    #ifndef THERMAL_REGULATION
+#ifdef VOLTAGE_MON
+#ifndef THERMAL_REGULATION
     ADC_on();
-    #endif
-    #else
+#endif
+#else
     ADC_off();
-    #endif
+#endif
 
     uint8_t mode;
-    #ifdef VOLTAGE_MON
+#ifdef VOLTAGE_MON
     uint8_t lowbatt_cnt = 0;
     uint8_t voltage;
-    #endif
-    #ifdef THERMAL_REGULATION
-    #define THERM_HISTORY_SIZE 8
+#endif
+#ifdef THERMAL_REGULATION
+#define THERM_HISTORY_SIZE 8
     uint8_t temperatures[THERM_HISTORY_SIZE];
     uint8_t overheat_count = 0;
     uint8_t underheat_count = 0;
     uint8_t first_temp_reading = 1;
-    #endif
+#endif
     uint8_t first_loop = 1;
     uint8_t loop_count = 0;
     while(1) {
         if (mode_idx < sizeof(modes)) mode = modes[mode_idx];
         else mode = mode_idx;
 
-        #if defined(VOLTAGE_MON) && defined(THERMAL_REGULATION)
+#if defined(VOLTAGE_MON) && defined(THERMAL_REGULATION)
         // make sure a voltage reading has started, for LVP purposes
         ADC_on();
-        #endif
+#endif
 
 
         if (0) {  // This can't happen
         }
 
-        #ifdef CONFIG_MODE
+#ifdef CONFIG_MODE
         else if (fast_presses > 15) {
             _delay_s();       // wait for user to stop fast-pressing button
             fast_presses = 0; // exit this mode after one use
@@ -694,28 +701,28 @@ int main(void)
             next_mode_num = 255;
 
             uint8_t t = 0;
-            #ifdef MEMTOGGLE
+#ifdef MEMTOGGLE
             // turn memory on/off
             // (click during the "buzz" to change the setting)
             toggle(&memory, ++t);
-            #endif  // ifdef MEMTOGGLE
+#endif  // ifdef MEMTOGGLE
 
-            #ifdef THERM_CALIBRATION_MODE
+#ifdef THERM_CALIBRATION_MODE
             // Enter temperature calibration mode?
             next_mode_num = THERM_CALIBRATION_MODE;
             // mode_override does nothing here; just a dummy value
             toggle(&mode_override, ++t);
             mode_idx = 1;
             next_mode_num = 255;
-            #endif
+#endif
 
             // if config mode ends with no changes,
             // pretend this is the first loop
             continue;
         }
-        #endif  // ifdef CONFIG_MODE
+#endif  // ifdef CONFIG_MODE
 
-        #ifdef MEMORY
+#ifdef MEMORY
         // memorized level
         else if (mode_override == MEMORY) {
             // only do this once
@@ -736,7 +743,7 @@ int main(void)
             // restart as if this were the first loop
             continue;
         }
-        #endif
+#endif
 
         // smooth ramp mode, lets user select any output level
         if (mode == RAMP) {
@@ -783,19 +790,19 @@ int main(void)
                     ((ramp_dir > 0) && (ramp_level >= RAMP_SIZE))
                     ||
                     ((ramp_dir < 0) && (ramp_level <= 1))
-                    )
+                )
                     break;
             }
             if (ramp_dir == 1) {
-                #ifdef STOP_AT_TOP
+#ifdef STOP_AT_TOP
                 // go to steady mode
                 mode_idx += 1;
-                #endif
-                #ifdef BLINK_AT_TOP
+#endif
+#ifdef BLINK_AT_TOP
                 // blink at the top
                 set_mode(0);
                 _delay_4ms(2);
-                #endif
+#endif
             }
             ramp_dir = -ramp_dir;
         }
@@ -830,22 +837,22 @@ int main(void)
             next_mode_num = 1;
         }
 
-        #ifdef STROBE
+#ifdef STROBE
         else if (mode == STROBE) {
             // 10Hz tactical strobe
             strobe(33/4,67/4);
         }
-        #endif // ifdef STROBE
+#endif // ifdef STROBE
 
-        #ifdef POLICE_STROBE
+#ifdef POLICE_STROBE
         else if (mode == POLICE_STROBE) {
             // police-like strobe
             strobe(20/4,40/4);
             strobe(40/4,80/4);
         }
-        #endif // ifdef POLICE_STROBE
+#endif // ifdef POLICE_STROBE
 
-        #ifdef RANDOM_STROBE
+#ifdef RANDOM_STROBE
         else if (mode == RANDOM_STROBE) {
             // pseudo-random strobe
             uint8_t ms = (34 + (pgm_rand() & 0x3f))>>2;
@@ -856,27 +863,29 @@ int main(void)
             _delay_4ms(ms);
             //strobe(ms, ms);
         }
-        #endif // ifdef RANDOM_STROBE
+#endif // ifdef RANDOM_STROBE
 
-        #ifdef BIKING_MODE
+#ifdef BIKING_MODE
         else if (mode == BIKING_MODE) {
             // 2-level stutter beacon for biking and such
             biking_mode(RAMP_SIZE/2, RAMP_SIZE);
         }
-        #endif  // ifdef BIKING_MODE
+#endif  // ifdef BIKING_MODE
 
-        #ifdef BIKING_MODE2
+#ifdef BIKING_MODE2
         else if (mode == BIKING_MODE2) {
             // 2-level stutter beacon for biking and such
             biking_mode(RAMP_SIZE/4, RAMP_SIZE/2);
         }
-        #endif  // ifdef BIKING_MODE
+#endif  // ifdef BIKING_MODE
 
-        #ifdef SOS
-        else if (mode == SOS) { SOS_mode(); }
-        #endif // ifdef SOS
+#ifdef SOS
+        else if (mode == SOS) {
+            SOS_mode();
+        }
+#endif // ifdef SOS
 
-        #ifdef HEART_BEACON
+#ifdef HEART_BEACON
         else if (mode == HEART_BEACON) {
             set_mode(RAMP_SIZE);
             _delay_4ms(1);
@@ -887,53 +896,61 @@ int main(void)
             set_mode(0);
             _delay_4ms(750/4);
         }
-        #endif
+#endif
 
-        #ifdef PARTY_STROBE12
+#ifdef PARTY_STROBE12
         else if (mode == PARTY_STROBE12) {
             party_strobe_loop(1,79);
         }
-        #endif
+#endif
 
-        #ifdef PARTY_STROBE24
+#ifdef PARTY_STROBE24
         else if (mode == PARTY_STROBE24) {
             party_strobe_loop(0,41);
         }
-        #endif
+#endif
 
-        #ifdef PARTY_STROBE60
+#ifdef PARTY_STROBE60
         else if (mode == PARTY_STROBE60) {
             party_strobe_loop(0,15);
         }
-        #endif
+#endif
 
-        #ifdef PARTY_VARSTROBE1
+#ifdef PARTY_VARSTROBE1
         else if (mode == PARTY_VARSTROBE1) {
             uint8_t j, speed;
             for(j=0; j<66; j++) {
-                if (j<33) { speed = j; }
-                else { speed = 66-j; }
+                if (j<33) {
+                    speed = j;
+                }
+                else {
+                    speed = 66-j;
+                }
                 party_strobe(1,(speed+33-6)<<1);
             }
         }
-        #endif
+#endif
 
-        #ifdef PARTY_VARSTROBE2
+#ifdef PARTY_VARSTROBE2
         else if (mode == PARTY_VARSTROBE2) {
             uint8_t j, speed;
             for(j=0; j<100; j++) {
-                if (j<50) { speed = j; }
-                else { speed = 100-j; }
+                if (j<50) {
+                    speed = j;
+                }
+                else {
+                    speed = 100-j;
+                }
                 party_strobe(0, speed+9);
             }
         }
-        #endif
+#endif
 
-        #ifdef BATTCHECK
+#ifdef BATTCHECK
         // battery check mode, show how much power is left
         else if (mode == BATTCHECK) {
             _delay_500ms();
-            #ifdef BATTCHECK_VpT
+#ifdef BATTCHECK_VpT
             // blink out volts and tenths
             uint8_t result = battcheck();
             blink(result >> 5, BLINK_SPEED/5);
@@ -941,24 +958,25 @@ int main(void)
             blink(1,8/4);
             _delay_4ms(BLINK_SPEED*4/3);
             blink(result & 0b00011111, BLINK_SPEED/5);
-            #else  // ifdef BATTCHECK_VpT
+#else  // ifdef BATTCHECK_VpT
             // blink zero to five times to show voltage
             // (or zero to nine times, if 8-bar mode)
             // (~0%, ~25%, ~50%, ~75%, ~100%, >100%)
             blink(battcheck(), BLINK_SPEED/4);
-            #endif  // ifdef BATTCHECK_VpT
+#endif  // ifdef BATTCHECK_VpT
             // wait between readouts
-            _delay_s(); _delay_s();
+            _delay_s();
+            _delay_s();
         }
-        #endif // ifdef BATTCHECK
+#endif // ifdef BATTCHECK
 
-        #ifdef GOODNIGHT
+#ifdef GOODNIGHT
         // "good night" mode, slowly ramps down and shuts off
         else if (mode == GOODNIGHT) {
             uint8_t i, j;
             // signal that this is *not* the STEADY mode
             blink(2, BLINK_SPEED/16);
-            #define GOODNIGHT_TOP (RAMP_SIZE/6)
+#define GOODNIGHT_TOP (RAMP_SIZE/6)
             // ramp up instead of going directly to the top level
             // (probably pointless in this UI)
             /*
@@ -971,12 +989,12 @@ int main(void)
             for(i=GOODNIGHT_TOP; i>=1; i--) {
                 set_mode(i);
                 // how long the down ramp should last, in seconds
-                #define GOODNIGHT_TIME 60*60
+#define GOODNIGHT_TIME 60*60
                 // how long does _delay_s() actually last, in seconds?
                 // (calibrate this per driver, probably)
-                #define ONE_SECOND 1.03
-                #define GOODNIGHT_STEPS (1+GOODNIGHT_TOP)
-                #define GOODNIGHT_LOOPS (uint8_t)((GOODNIGHT_TIME) / ((2*ONE_SECOND) * GOODNIGHT_STEPS))
+#define ONE_SECOND 1.03
+#define GOODNIGHT_STEPS (1+GOODNIGHT_TOP)
+#define GOODNIGHT_LOOPS (uint8_t)((GOODNIGHT_TIME) / ((2*ONE_SECOND) * GOODNIGHT_STEPS))
                 // NUM_LOOPS = (60*60) / ((2*ONE_SECOND) * (1+MODE_LOW-MODE_MOON))
                 // (where ONE_SECOND is how many seconds _delay_s() actually lasts)
                 // (in my case it's about 0.89)
@@ -988,16 +1006,16 @@ int main(void)
             }
             poweroff();
         }
-        #endif // ifdef GOODNIGHT
+#endif // ifdef GOODNIGHT
 
         else {  // shouldn't happen  (compiler omits this entire clause)
         }
         fast_presses = 0;
 
 
-        #ifdef VOLTAGE_MON
+#ifdef VOLTAGE_MON
         //if (ADCSRA & (1 << ADIF)) {  // if a voltage reading is ready
-        {  // nope, always execute
+        {   // nope, always execute
             //voltage = ADCH;  // get the waiting value
             voltage = get_voltage();  // get a new value, first is unreliable
             // See if voltage is lower than what we were looking for
@@ -1038,23 +1056,23 @@ int main(void)
             // (not relevant with thermal regulation also active)
             //ADCSRA |= (1 << ADSC);
         }
-        #endif  // ifdef VOLTAGE_MON
+#endif  // ifdef VOLTAGE_MON
 
-        #ifdef THERMAL_REGULATION
+#ifdef THERMAL_REGULATION
         if ((mode == STEADY) || (mode == TURBO) || (mode == THERM_CALIBRATION_MODE)) {
             // how far ahead should we predict?
-            #define THERM_PREDICTION_STRENGTH 4
+#define THERM_PREDICTION_STRENGTH 4
             // how proportional should the adjustments be?
-            #define THERM_DIFF_ATTENUATION 4
+#define THERM_DIFF_ATTENUATION 4
             // how low is the lowpass filter?
-            #define THERM_LOWPASS 8
+#define THERM_LOWPASS 8
             // lowest ramp level; never go below this (sanity check)
-            #define THERM_FLOOR (RAMP_SIZE/4)
+#define THERM_FLOOR (RAMP_SIZE/4)
             // highest temperature allowed
             // (convert configured value to 13.2 fixed-point)
-            #define THERM_CEIL (therm_ceil<<2)
+#define THERM_CEIL (therm_ceil<<2)
             // acceptable temperature window size in C
-            #define THERM_WINDOW_SIZE 8
+#define THERM_WINDOW_SIZE 8
 
             int16_t temperature = current_temperature();
             int16_t projected;  // Fight the future!
@@ -1116,7 +1134,9 @@ int main(void)
 
                     // how far above the ceiling?
                     int16_t exceed = (projected - THERM_CEIL) >> THERM_DIFF_ATTENUATION;
-                    if (exceed < 1) { exceed = 1; }
+                    if (exceed < 1) {
+                        exceed = 1;
+                    }
                     uint8_t stepdown = actual_level - exceed;
                     // never go under the floor; zombies in the cellar
                     if (stepdown < THERM_FLOOR) {
@@ -1152,7 +1172,7 @@ int main(void)
                 }
             }
         }
-        #endif  // ifdef THERMAL_REGULATION
+#endif  // ifdef THERMAL_REGULATION
 
         first_loop = 0;
         loop_count ++;
