@@ -82,7 +82,7 @@
 uint8_t g_u8firstboot = FIRSTBOOT;  // detect initial boot or factory reset
 #endif
 uint8_t g_u8modegroup;     // which mode group (set above in #defines)
-#define enable_moon   0u   // Should we add moon to the set of g_u8modes?
+#define enable_moon   1u   // Should we add moon to the set of g_u8modes?
 #define reverse_modes 0u   // flip the mode order?
 uint8_t g_u8memory;        // mode g_u8memory, or not (set via soldered star)
 #ifdef OFFTIM3

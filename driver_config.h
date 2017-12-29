@@ -35,7 +35,7 @@
 // level_calc.py 1 4 7135 9 8 700
 // level_calc.py 1 3 7135 9 8 700
 #define RAMP_7135  1,7,32,63,107,127,255
-#define RAMP_FET   1,7,32,63,107,127,255
+//#define RAMP_FET   1,7,32,63,107,127,255
 // x**5 curve
 //#define RAMP_7135  3,3,3,4,4,5,5,6,7,8,10,11,13,15,18,21,24,28,33,38,44,50,57,66,75,85,96,108,122,137,154,172,192,213,237,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0
 //#define RAMP_FET   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,6,9,13,17,21,25,30,35,41,47,53,60,67,75,83,91,101,111,121,132,144,156,169,183,198,213,255
@@ -46,9 +46,9 @@
 // Enable battery indicator mode?
 #define USE_BATTCHECK
 // Choose a battery indicator style
-#define BATTCHECK_4bars  // up to 4 blinks
+//#define BATTCHECK_4bars  // up to 4 blinks
 //#define BATTCHECK_8bars  // up to 8 blinks
-//#define BATTCHECK_VpT  // Volts + tenths
+#define BATTCHECK_VpT  // Volts + tenths
 
 // output to use for blinks on battery check (and other modes)
 //#define BLINK_BRIGHTNESS    RAMP_SIZE/4

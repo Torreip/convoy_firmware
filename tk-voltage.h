@@ -79,6 +79,7 @@ void ADC_on_temperature() {
 #endif  // TEMPERATURE_MON
 
 #ifdef VOLTAGE_MON
+#  define NEED_ADC_8bit
 void ADC_on() {
     // disable digital input on ADC pin to reduce power consumption
     DIDR0 |= (1 << ADC_DIDR);

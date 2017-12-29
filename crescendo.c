@@ -44,8 +44,9 @@
 //#define ATTINY 25
 // Pick your driver type:
 //#define NANJG_LAYOUT
-#define FET_7135_LAYOUT
+//#define FET_7135_LAYOUT
 //#define TRIPLEDOWN_LAYOUT
+#define LAYOUT_CONVS3
 // Also, assign I/O pins in this file:
 #include "tk-attiny.h"
 
@@ -55,13 +56,16 @@
  */
 
 #define VOLTAGE_MON         // Comment out to disable LVP and battcheck
-#define THERMAL_REGULATION  // Comment out to disable thermal regulation
+//#define THERMAL_REGULATION  // Comment out to disable thermal regulation
 #define MAX_THERM_CEIL 70   // Highest allowed temperature ceiling
 #define DEFAULT_THERM_CEIL 50  // Temperature limit when unconfigured
 
 // FET-only or Convoy red driver
 // ../../bin/level_calc.py 1 64 7135 1 0.25 1000
-//#define RAMP_CH1   1,1,1,1,1,2,2,2,2,3,3,4,5,5,6,7,8,9,10,11,13,14,16,18,20,22,24,26,29,32,34,38,41,44,48,51,55,60,64,68,73,78,84,89,95,101,107,113,120,127,134,142,150,158,166,175,184,193,202,212,222,233,244,255
+#define RAMP_CH1   1,1,1,1,1,2,2,2,2,3,3,4,5,5,6,7,8,9,10,11,13,14,16,18,20,22,24,26,29,32,34,38,41,44,48,51,55,60,64,68,73,78,84,89,95,101,107,113,120,127,134,142,150,158,166,175,184,193,202,212,222,233,244,255
+
+// Timings seem messed up with convoy driver, add multiplier
+#define CONVOY_MULT (1u)
 
 // Common nanjg driver
 // ../../bin/level_calc.py 1 64 7135 4 0.25 1000
@@ -89,21 +93,12 @@
 //#define RAMP_CH2 2,2,2,3,3,4,4,5,5,6,7,8,9,10,11,13,14,16,18,20,22,24,27,30,32,35,39,42,46,49,53,58,62,67,72,77,82,88,94,100,106,113,120,127,135,143,151,160,168,178,187,197,207,217,228,239,251,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0
 // MTN17DDm FET+1 tiny25, 128 steps (smooth!), 2000lm max, 380mA 7135 chip
 // ../../bin/level_calc.py 2 128 7135 6 0.25 140 FET 1 10 2000
-#define RAMP_CH1 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,4,5,6,7,9,10,12,13,14,16,18,19,21,23,25,26,28,30,32,34,36,39,41,43,45,48,50,53,55,58,61,63,66,69,72,75,78,81,84,88,91,94,98,101,105,109,112,116,120,124,128,132,136,141,145,149,154,158,163,168,173,177,182,187,193,198,203,209,214,220,225,231,237,243,249,255
-#define RAMP_CH2 6,6,7,7,7,8,9,9,10,11,12,14,15,17,19,21,23,25,28,31,34,37,41,45,49,53,58,63,68,73,79,85,92,99,106,114,122,130,139,148,157,167,178,188,200,211,224,236,249,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0
-
-// TripleDown
-// ../../bin/level_calc.py 3 80 7135 3 0.25 140 7135 3 1.5 660 FET 1 10 1200
-// Nx7135
-//#define RAMP_CH1 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,10,15,19,24,29,34,40,46,52,58,64,71,78,85,92,100,108,116,125,133,143,152,162,172,182,192,203,215,226,238,250,255,255,255,255,255,255,255,255,255,255,0
-// 1x7135
-//#define RAMP_CH2 3,3,4,4,5,6,7,9,11,13,15,17,20,24,28,32,36,41,47,53,59,67,74,83,91,101,111,122,134,146,159,173,187,203,219,236,254,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0
-// FET
-//#define RAMP_CH3 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,30,52,75,99,124,149,174,200,227,255
+//#define RAMP_CH1 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,4,5,6,7,9,10,12,13,14,16,18,19,21,23,25,26,28,30,32,34,36,39,41,43,45,48,50,53,55,58,61,63,66,69,72,75,78,81,84,88,91,94,98,101,105,109,112,116,120,124,128,132,136,141,145,149,154,158,163,168,173,177,182,187,193,198,203,209,214,220,225,231,237,243,249,255
+//#define RAMP_CH2 6,6,7,7,7,8,9,9,10,11,12,14,15,17,19,21,23,25,28,31,34,37,41,45,49,53,58,63,68,73,79,85,92,99,106,114,122,130,139,148,157,167,178,188,200,211,224,236,249,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0
 
 // How many ms should it take to ramp all the way up?
 // (recommended values 2000 to 5000 depending on personal preference)
-#define RAMP_TIME  3000
+#define RAMP_TIME  3000*CONVOY_MULT
 
 // How long to wait at ramp ends, and
 // how long the user has to continue multi-taps after the light comes on
@@ -111,7 +106,7 @@
 //  lower makes the UI faster)
 // (recommended values 250 to 750)
 //#define HALF_SECOND 500
-#define HALF_SECOND 333
+#define HALF_SECOND 333*CONVOY_MULT
 
 // Enable battery indicator mode?
 #ifdef VOLTAGE_MON
@@ -144,32 +139,32 @@
 #ifdef VOLTAGE_MON
 #define BATTCHECK 251
 #endif
-#define MEMORY    250
+//#define MEMORY    250
 #ifdef MEMORY
-#define MEMTOGGLE // runtime config for g_u8memory (requires MEMORY)
+//#define MEMTOGGLE // runtime config for g_u8memory (requires MEMORY)
 #endif
 #ifdef THERMAL_REGULATION
 #define THERM_CALIBRATION_MODE 248  // let user configure temperature limit
 #endif
-#define BIKING_MODE 247   // steady on with pulses at 1Hz
+//#define BIKING_MODE 247   // steady on with pulses at 1Hz
 //#define BIKING_MODE2 246   // steady on with pulses at 1Hz
 // comment out to use minimal version instead (smaller)
-#define FULL_BIKING_MODE
+//#define FULL_BIKING_MODE
 // Required for any of the strobes below it
 //#define ANY_STROBE
 //#define STROBE    245         // Simple tactical strobe
 //#define POLICE_STROBE 244     // 2-speed tactical strobe
 //#define RANDOM_STROBE 243     // variable-speed tactical strobe
 //#define SOS 242               // distress signal
-#define HEART_BEACON 241      // 1Hz heartbeat-pattern beacon
+//#define HEART_BEACON 241      // 1Hz heartbeat-pattern beacon
 // next line required for any of the party strobes to work
-#define PARTY_STROBES
-#define PARTY_STROBE12 240    // 12Hz party strobe
-#define PARTY_STROBE24 239    // 24Hz party strobe
-#define PARTY_STROBE60 238    // 60Hz party strobe
+//#define PARTY_STROBES
+//#define PARTY_STROBE12 240    // 12Hz party strobe
+//#define PARTY_STROBE24 239    // 24Hz party strobe
+//#define PARTY_STROBE60 238    // 60Hz party strobe
 //#define PARTY_VARSTROBE1 237  // variable-speed party strobe (slow)
 //#define PARTY_VARSTROBE2 236  // variable-speed party strobe (fast)
-#define GOODNIGHT 235         // hour-long ramp down then poweroff
+//#define GOODNIGHT 235         // hour-long ramp down then poweroff
 
 
 #if defined(MEMTOGGLE) || defined(THERM_CALIBRATION_MODE)
