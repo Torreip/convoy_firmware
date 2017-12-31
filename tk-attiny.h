@@ -149,15 +149,15 @@ Hey, you need to define ATTINY.
 /*
  * ATTINY13 Diagram
  *           ----
- *         -|1  8|- VCC
- *         -|2  7|- Voltage ADC
- *         -|3  6|- PWM (Nx7135)
- *     GND -|4  5|-
+ *     PB5 -|1  8|- VCC
+ *     PB3 -|2  7|- Voltage ADC / PB2
+ *     PB4 -|3  6|- PWM (Nx7135) / PB1
+ *     GND -|4  5|- PB0
  *           ----
  */
-//#define STAR2_PIN   PB0
-//#define STAR3_PIN   PB4
-//#define STAR4_PIN   PB3
+#define STAR2_PIN   PB0
+#define STAR3_PIN   PB4
+#define STAR4_PIN   PB3
 #define PWM_PIN     PB1
 #define VOLTAGE_PIN PB2
 #define ADC_CHANNEL 0x01    // MUX 01 corresponds with PB2
@@ -168,6 +168,8 @@ Hey, you need to define ATTINY.
 
 #define FAST 0x23           // fast PWM channel 1 only
 #define PHASE 0x21          // phase-correct PWM channel 1 only
+
+#define RAM_DECAY_PROBLEM   // My red convoy driver has RAM decay problems
 
 #endif  // LAYOUT_CONVS3
 

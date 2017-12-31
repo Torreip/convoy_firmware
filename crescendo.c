@@ -40,7 +40,7 @@
  *   Same for off-time capacitor values.  Measure, don't guess.
  */
 // Choose your MCU here, or in the build script
-//#define ATTINY 13
+#define ATTINY 13
 //#define ATTINY 25
 // Pick your driver type:
 //#define NANJG_LAYOUT
@@ -57,56 +57,33 @@
 
 #define VOLTAGE_MON         // Comment out to disable LVP and battcheck
 //#define THERMAL_REGULATION  // Comment out to disable thermal regulation
-#define MAX_THERM_CEIL 70   // Highest allowed temperature ceiling
-#define DEFAULT_THERM_CEIL 50  // Temperature limit when unconfigured
+//#define MAX_THERM_CEIL 70   // Highest allowed temperature ceiling
+//#define DEFAULT_THERM_CEIL 50  // Temperature limit when unconfigured
 
 // FET-only or Convoy red driver
 // ../../bin/level_calc.py 1 64 7135 1 0.25 1000
-#define RAMP_CH1   1,1,1,1,1,2,2,2,2,3,3,4,5,5,6,7,8,9,10,11,13,14,16,18,20,22,24,26,29,32,34,38,41,44,48,51,55,60,64,68,73,78,84,89,95,101,107,113,120,127,134,142,150,158,166,175,184,193,202,212,222,233,244,255
+//#define RAMP_CH1   1,1,1,1,1,2,2,2,2,3,3,4,5,5,6,7,8,9,10,11,13,14,16,18,20,22,24,26,29,32,34,38,41,44,48,51,55,60,64,68,73,78,84,89,95,101,107,113,120,127,134,142,150,158,166,175,184,193,202,212,222,233,244,255
+// ../../bin/level_calc.py 1 128 7135 1 0.25 1000
+//#define RAMP_CH1   1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,4,4,4,4,5,5,6,6,6,7,7,8,8,9,9,10,11,11,12,13,13,14,15,16,17,17,18,19,20,21,22,24,25,26,27,28,30,31,32,34,35,37,38,40,42,43,45,47,49,50,52,54,56,58,60,63,65,67,69,72,74,77,79,82,84,87,90,93,96,99,102,105,108,111,114,118,121,124,128,131,135,139,143,146,150,154,158,162,167,171,175,180,184,189,193,198,203,208,213,218,223,228,233,239,244,249,255
+// Below 4, no light on my red convoy driver
+#define RAMP_CH1   4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,9,9,10,10,11,11,12,12,13,13,14,15,15,16,17,18,19,19,20,21,22,23,24,25,26,27,29,30,31,32,34,35,36,38,39,41,42,44,46,47,49,51,53,55,57,59,61,63,65,67,69,72,74,76,79,81,84,86,89,92,95,98,100,103,106,109,113,116,119,122,126,129,133,136,140,144,148,152,155,159,164,168,172,176,181,185,189,194,199,203,208,213,218,223,228,233,239,244,249,255
+
 
 // Timings seem messed up with convoy driver, add multiplier
 #define CONVOY_MULT (1u)
 
-// Common nanjg driver
-// ../../bin/level_calc.py 1 64 7135 4 0.25 1000
-//#define RAMP_CH1   4,4,4,4,4,5,5,5,5,6,6,7,7,8,9,10,11,12,13,14,16,17,19,21,23,25,27,29,32,34,37,40,43,47,50,54,58,62,66,71,75,80,86,91,97,103,109,115,122,129,136,143,151,159,167,176,184,194,203,213,223,233,244,255
-// ../../bin/level_calc.py 1 96 7135 4 0.25 1000
-//#define RAMP_CH1   4,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,7,7,7,8,8,9,9,10,11,11,12,13,14,15,16,17,18,19,20,21,22,24,25,26,28,30,31,33,35,37,39,41,43,45,47,49,52,54,57,60,62,65,68,71,74,78,81,84,88,92,95,99,103,107,111,116,120,124,129,134,139,144,149,154,159,165,170,176,182,188,194,200,207,213,220,226,233,240,248,255
-// ../../bin/level_calc.py 1 128 7135 4 0.25 1000
-//#define RAMP_CH1   4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,9,9,10,10,11,11,12,12,13,13,14,15,15,16,17,18,19,19,20,21,22,23,24,25,26,27,29,30,31,32,34,35,36,38,39,41,42,44,46,47,49,51,53,55,57,59,61,63,65,67,69,72,74,76,79,81,84,86,89,92,95,98,100,103,106,109,113,116,119,122,126,129,133,136,140,144,148,152,155,159,164,168,172,176,181,185,189,194,199,203,208,213,218,223,228,233,239,244,249,255
-
-// MTN17DDm FET+1 tiny25, 36 steps
-// ../../bin/level_calc.py 2 36 7135 2 0.25 140 FET 1 10 1300
-//#define RAMP_CH1 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,7,14,21,29,37,47,57,68,80,93,107,121,137,154,172,191,211,232,255
-//#define RAMP_CH2 2,3,5,8,12,18,26,37,49,65,84,106,131,161,195,233,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0
-// MTN17DDm FET+1 tiny25, 56 steps
-// ../../bin/level_calc.py 2 56 7135 2 0.25 140 FET 1 10 1300
-//#define RAMP_CH1 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,4,8,12,17,22,26,32,37,43,49,56,63,70,78,86,94,103,112,121,131,142,152,164,175,187,200,213,226,240,255
-//#define RAMP_CH2 2,3,3,5,6,8,11,15,19,24,30,37,45,53,64,75,88,102,117,134,153,173,195,219,244,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0
-// MTN17DDm FET+1 tiny25, 64 steps
-// ../../bin/level_calc.py 2 64 7135 2 0.25 140 FET 1 10 1300
-//#define RAMP_CH1 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,5,9,12,16,20,24,29,33,38,44,49,55,61,67,73,80,87,94,102,110,118,126,135,144,154,164,174,184,195,206,218,230,242,255
-//#define RAMP_CH2 2,2,3,4,5,7,9,12,15,18,23,27,33,39,46,54,63,73,84,96,109,123,138,154,172,191,211,233,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0
-// MTN17DDm FET+1 tiny25, 128 steps (smooth!)
-// ../../bin/level_calc.py 2 128 7135 2 0.25 140 FET 1 10 1300
-//#define RAMP_CH1 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,4,6,8,9,11,13,15,17,19,21,23,25,27,30,32,34,37,39,42,45,47,50,53,56,59,62,65,68,71,74,78,81,84,88,92,95,99,103,107,111,115,119,123,127,132,136,141,145,150,155,159,164,169,174,180,185,190,196,201,207,213,218,224,230,236,242,249,255
-//#define RAMP_CH2 2,2,2,3,3,4,4,5,5,6,7,8,9,10,11,13,14,16,18,20,22,24,27,30,32,35,39,42,46,49,53,58,62,67,72,77,82,88,94,100,106,113,120,127,135,143,151,160,168,178,187,197,207,217,228,239,251,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0
-// MTN17DDm FET+1 tiny25, 128 steps (smooth!), 2000lm max, 380mA 7135 chip
-// ../../bin/level_calc.py 2 128 7135 6 0.25 140 FET 1 10 2000
-//#define RAMP_CH1 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,4,5,6,7,9,10,12,13,14,16,18,19,21,23,25,26,28,30,32,34,36,39,41,43,45,48,50,53,55,58,61,63,66,69,72,75,78,81,84,88,91,94,98,101,105,109,112,116,120,124,128,132,136,141,145,149,154,158,163,168,173,177,182,187,193,198,203,209,214,220,225,231,237,243,249,255
-//#define RAMP_CH2 6,6,7,7,7,8,9,9,10,11,12,14,15,17,19,21,23,25,28,31,34,37,41,45,49,53,58,63,68,73,79,85,92,99,106,114,122,130,139,148,157,167,178,188,200,211,224,236,249,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0
 
 // How many ms should it take to ramp all the way up?
 // (recommended values 2000 to 5000 depending on personal preference)
-#define RAMP_TIME  3000*CONVOY_MULT
+#define RAMP_TIME  5000
 
 // How long to wait at ramp ends, and
 // how long the user has to continue multi-taps after the light comes on
 // (higher makes it slower and easier to do double-taps / triple-taps,
 //  lower makes the UI faster)
 // (recommended values 250 to 750)
-//#define HALF_SECOND 500
-#define HALF_SECOND 333*CONVOY_MULT
+#define HALF_SECOND 500
+//#define HALF_SECOND 333
 
 // Enable battery indicator mode?
 #ifdef VOLTAGE_MON
@@ -114,8 +91,8 @@
 #endif
 // Choose a battery indicator style
 //#define BATTCHECK_4bars  // up to 4 blinks
-#define BATTCHECK_8bars  // up to 8 blinks
-//#define BATTCHECK_VpT  // Volts + tenths
+//#define BATTCHECK_8bars  // up to 8 blinks
+#define BATTCHECK_VpT  // Volts + tenths
 
 // output to use for blinks on battery check (and other g_u8modes)
 #define BLINK_BRIGHTNESS    RAMP_SIZE/4
@@ -152,18 +129,21 @@
 //#define FULL_BIKING_MODE
 // Required for any of the strobes below it
 //#define ANY_STROBE
-//#define STROBE    245         // Simple tactical strobe
-//#define POLICE_STROBE 244     // 2-speed tactical strobe
-//#define RANDOM_STROBE 243     // variable-speed tactical strobe
-//#define SOS 242               // distress signal
-//#define HEART_BEACON 241      // 1Hz heartbeat-pattern beacon
+#ifdef ANY_STROBE
+#define STROBE    245         // Simple tactical strobe
+#define POLICE_STROBE 244     // 2-speed tactical strobe
+#define RANDOM_STROBE 243     // variable-speed tactical strobe
+#define SOS 242               // distress signal
+#define HEART_BEACON 241      // 1Hz heartbeat-pattern beacon
 // next line required for any of the party strobes to work
-//#define PARTY_STROBES
-//#define PARTY_STROBE12 240    // 12Hz party strobe
-//#define PARTY_STROBE24 239    // 24Hz party strobe
-//#define PARTY_STROBE60 238    // 60Hz party strobe
-//#define PARTY_VARSTROBE1 237  // variable-speed party strobe (slow)
-//#define PARTY_VARSTROBE2 236  // variable-speed party strobe (fast)
+#define PARTY_STROBES
+#define PARTY_STROBE12 240    // 12Hz party strobe
+#define PARTY_STROBE24 239    // 24Hz party strobe
+#define PARTY_STROBE60 238    // 60Hz party strobe
+#define PARTY_VARSTROBE1 237  // variable-speed party strobe (slow)
+#define PARTY_VARSTROBE2 236  // variable-speed party strobe (fast)
+#endif /* ANT_STROBE*/
+
 //#define GOODNIGHT 235         // hour-long ramp down then poweroff
 
 
@@ -226,9 +206,9 @@ uint8_t g_u8fast_presses __attribute__ ((section (".noinit")));
 uint8_t g_u8long_press __attribute__ ((section (".noinit")));
 // current or last-used mode number
 uint8_t g_u8mode_idx __attribute__ ((section (".noinit")));
-uint8_t ramp_level __attribute__ ((section (".noinit")));
-int8_t ramp_dir __attribute__ ((section (".noinit")));
-uint8_t next_mode_num __attribute__ ((section (".noinit")));
+uint8_t g_u8ramp_level __attribute__ ((section (".noinit")));
+int8_t  g_i8ramp_dir __attribute__ ((section (".noinit")));
+uint8_t g_u8next_mode_num __attribute__ ((section (".noinit")));
 uint8_t target_level;  // ramp level before thermal stepdown
 uint8_t actual_level;  // last ramp level activated
 
@@ -312,7 +292,7 @@ void save_mode() {  // save the current mode index (with wear leveling)
         // save current mode
         eeprom_write_byte((uint8_t *)(g_u8eepos), g_u8mode_idx);
         // save current brightness
-        eeprom_write_byte((uint8_t *)(g_u8eepos+1), ramp_level);
+        eeprom_write_byte((uint8_t *)(g_u8eepos+1), g_u8ramp_level);
     }
 }
 #endif
@@ -378,9 +358,9 @@ void restore_state() {
 static inline void next_mode() {
     // allow an override, if it exists
     //if (next_mode_num < sizeof(g_u8modes)) {
-    if (next_mode_num < 255) {
-        g_u8mode_idx = next_mode_num;
-        next_mode_num = 255;
+    if (g_u8next_mode_num < 255) {
+        g_u8mode_idx = g_u8next_mode_num;
+        g_u8next_mode_num = 255;
         return;
     }
 
@@ -589,9 +569,21 @@ void toggle(uint8_t *var, uint8_t num) {
 }
 #endif  // ifdef CONFIG_MODE
 
+/* Set pins as input high (considering they are all floating
+ * Careful with Convoy "red" driver, MOSI is grounded */
+void init_unused_pins() {
+
+#if defined(STAR2_PIN) && defined(STAR3_PIN) && defined(STAR4_PIN)
+  PORTB = (1 << STAR2_PIN) | (1 << STAR3_PIN) | (1 << STAR4_PIN);
+#else
+#  error Please adapt unused pin init
+#endif /* STAR2_PIN | STAR3_PIN | STAR4_PIN */
+}
 
 int main(void)
 {
+    init_unused_pins();
+
     // Set PWM pin to output
     DDRB |= (1 << PWM_PIN);     // enable main channel
 #ifdef RAMP_CH2
@@ -632,9 +624,9 @@ int main(void)
         // Long press, use memorized level
         // ... or reset to the first mode
         g_u8fast_presses = 0;
-        ramp_level = 1;
-        ramp_dir = 1;
-        next_mode_num = 255;
+        g_u8ramp_level = 1;
+        g_i8ramp_dir = 1;
+        g_u8next_mode_num = 255;
         g_u8mode_idx = 0;
 #ifdef MEMORY
 #ifdef MEMTOGGLE
@@ -693,7 +685,7 @@ int main(void)
             g_u8fast_presses = 0; // exit this mode after one use
             //mode = STEADY;
             g_u8mode_idx = 1;
-            next_mode_num = 255;
+            g_u8next_mode_num = 255;
 
             uint8_t t = 0;
 #ifdef MEMTOGGLE
@@ -704,11 +696,11 @@ int main(void)
 
 #ifdef THERM_CALIBRATION_MODE
             // Enter temperature calibration mode?
-            next_mode_num = THERM_CALIBRATION_MODE;
+            g_u8next_mode_num = THERM_CALIBRATION_MODE;
             // mode_override does nothing here; just a dummy value
             toggle(&mode_override, ++t);
             g_u8mode_idx = 1;
-            next_mode_num = 255;
+            g_u8next_mode_num = 255;
 #endif
 
             // if config mode ends with no changes,
@@ -726,13 +718,13 @@ int main(void)
             // moon mode for half a second
             set_mode(1);
             // if the user taps quickly, go to the real moon mode
-            next_mode_num = 1;
+            g_u8next_mode_num = 1;
 
             _delay_500ms();
 
             // if they didn't tap quickly, go to the memorized mode/level
             g_u8mode_idx = saved_mode_idx;
-            ramp_level = saved_ramp_level;
+            g_u8ramp_level = saved_ramp_level;
             // remember for next time
             save_mode();
             // restart as if this were the first loop
@@ -742,7 +734,7 @@ int main(void)
 
         // smooth ramp mode, lets user select any output level
         if (mode == RAMP) {
-            set_mode(ramp_level);  // turn light on
+            set_mode(g_u8ramp_level);  // turn light on
 
             // ramp up by default
             //if (g_u8fast_presses == 0) {
@@ -751,12 +743,12 @@ int main(void)
             // double-tap to ramp down
             //else if (g_u8fast_presses == 1) {
             if (g_u8fast_presses == 1) {
-                next_mode_num = g_u8mode_idx;  // stay in ramping mode
-                ramp_dir = -1;             // ... but go down
+                g_u8next_mode_num = g_u8mode_idx;  // stay in ramping mode
+                g_i8ramp_dir = -1;             // ... but go down
             }
             // triple-tap to enter turbo
             else if (g_u8fast_presses == 2) {
-                next_mode_num = g_u8mode_idx + 2;  // bypass "steady" mode
+                g_u8next_mode_num = g_u8mode_idx + 2;  // bypass "steady" mode
             }
 
             // wait a bit before actually ramping
@@ -766,29 +758,31 @@ int main(void)
             // if we got through the delay, assume normal operation
             // (not trying to double-tap or triple-tap)
             // (next mode should be normal)
-            next_mode_num = 255;
+            g_u8next_mode_num = 255;
             // ramp up on single tap
             // (cancel earlier reversal)
             if (g_u8fast_presses == 1) {
-                ramp_dir = 1;
+                g_i8ramp_dir = 1;
             }
             // don't want this confusing us any more
             g_u8fast_presses = 0;
 
             // Just in case (SRAM could have partially decayed)
-            //ramp_dir = (ramp_dir == 1) ? 1 : -1;
+#ifdef RAM_DECAY_PROBLEM
+            g_i8ramp_dir = (g_i8ramp_dir == 1) ? 1 : -1;
+#endif /* RAM_DECAY_PROBLEM */
             // Do the actual ramp
-            for (;; ramp_level += ramp_dir) {
-                set_mode(ramp_level);
+            for (;; g_u8ramp_level += g_i8ramp_dir) {
+                set_mode(g_u8ramp_level);
                 _delay_4ms(RAMP_TIME/RAMP_SIZE/4);
                 if (
-                    ((ramp_dir > 0) && (ramp_level >= RAMP_SIZE))
+                    ((g_i8ramp_dir > 0) && (g_u8ramp_level >= RAMP_SIZE))
                     ||
-                    ((ramp_dir < 0) && (ramp_level <= 1))
+                    ((g_i8ramp_dir < 0) && (g_u8ramp_level <= 1))
                 )
                     break;
             }
-            if (ramp_dir == 1) {
+            if (g_i8ramp_dir == 1) {
 #ifdef STOP_AT_TOP
                 // go to steady mode
                 g_u8mode_idx += 1;
@@ -799,14 +793,14 @@ int main(void)
                 _delay_4ms(2);
 #endif
             }
-            ramp_dir = -ramp_dir;
+            g_i8ramp_dir = -g_i8ramp_dir;
         }
 
         else if (mode == STEADY) {
             // normal flashlight mode
             if (first_loop) {
-                set_mode(ramp_level);
-                target_level = ramp_level;
+                set_mode(g_u8ramp_level);
+                target_level = g_u8ramp_level;
             }
             // User has 0.5s to tap again to advance to the next mode
             //next_mode_num = 255;
@@ -814,7 +808,7 @@ int main(void)
             // After a delay, assume user wants to adjust ramp
             // instead of going to next mode (unless they're
             // tapping rapidly, in which case we should advance to turbo)
-            next_mode_num = 0;
+            g_u8next_mode_num = 0;
         }
 
         else if (mode == TURBO) {
@@ -829,7 +823,7 @@ int main(void)
             // if the user taps after a delay,
             // instead of advancing to blinkies
             // (allows something similar to "momentary" turbo)
-            next_mode_num = 1;
+            g_u8next_mode_num = 1;
         }
 
 #ifdef STROBE
@@ -1028,19 +1022,19 @@ int main(void)
                     // step "down" from special g_u8modes to medium-low
                     g_u8mode_idx = 1;
                     //mode = STEADY;
-                    ramp_level = RAMP_SIZE/4;
+                    g_u8ramp_level = RAMP_SIZE/4;
                 }
                 else {
-                    if (ramp_level > 1) {  // solid non-moon mode
+                    if (g_u8ramp_level > 1) {  // solid non-moon mode
                         // drop by 50% each time
-                        ramp_level = (actual_level >> 1);
+                        g_u8ramp_level = (actual_level >> 1);
                     } else { // Already at the lowest mode
                         // Turn off the light
                         poweroff();
                     }
                 }
-                set_mode(ramp_level);
-                target_level = ramp_level;
+                set_mode(g_u8ramp_level);
+                target_level = g_u8ramp_level;
                 //save_mode();  // we didn't actually change the mode
                 lowbatt_cnt = 0;
                 // Wait before lowering the level again
